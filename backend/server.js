@@ -31,8 +31,8 @@ app.use(
     })
 );
 
-configurePassport();
-app.use(passport.initialize());
+// configurePassport();
+// app.use(passport.initialize());
 // Mount routes - Sử dụng tiền tố /api/v1 cho các route xác thực
 app.get("/", (req, res) => {
     res.send("CinemaGo Server is RUNNING! (Base Project)");
