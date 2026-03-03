@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // ===== [NGUOI 1] Core Config & Auth =====
 import { connectDB } from "./config/db.js";
@@ -37,7 +39,9 @@ import protectedRoutes from "./routes/protected.routes.js";
 // import updateShowtimeStatus from "./cron/showtime.cron.js";
 // ===== END [NGUOI 5] =====
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 
