@@ -1,7 +1,7 @@
-import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
-
+import dotenv from "dotenv";
+import express from "express";
+import { connectDB } from "./config/db.js";
 // ============================================================
 // [NGƯỜI 1] Core Config & Auth — UNCOMMENT KHI HOÀN THÀNH
 // ============================================================
@@ -105,7 +105,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     // [NGƯỜI 1] Uncomment dòng dưới khi hoàn thành db config
-    // connectDB();
+    connectDB();
 
     // [NGƯỜI 5] Uncomment dòng dưới khi hoàn thành cron jobs
     // updateShowtimeStatus();
