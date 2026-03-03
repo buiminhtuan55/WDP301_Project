@@ -3,7 +3,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
   useLocation,
 } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -112,16 +111,6 @@ function AppContent() {
       <Box flex="1">
         <Routes>
           {/* ===== [NGUOI 1] Auth & Profile Routes ===== */}
-          <Route
-            index
-            element={
-              localStorage.getItem("accessToken") ? (
-                <Navigate to="/profile" replace />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/admin/login" element={<AdminAndStaffLoginPage />} />
