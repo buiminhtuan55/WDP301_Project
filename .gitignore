@@ -4,6 +4,8 @@ frontend/node_modules/
 
 # Environment
 .env
+backend/.env
+frontend/.env
 
 # Build output
 frontend/build/
