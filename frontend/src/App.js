@@ -1,23 +1,24 @@
-import { ChakraProvider, Box } from "@chakra-ui/react";
+import { Box, ChakraProvider } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import {
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
   useLocation,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
 
 // ===== [NGUOI 1] Auth & Layout Pages =====
-import Header from "./pages/Navbar/Header";
-import Footer from "./pages/Navbar/Footer";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/Login";
 import LoginPagetest from "./pages/LoginPagetest";
-import RegisterPage from "./pages/Register";
+import Footer from "./pages/Navbar/Footer";
+import Header from "./pages/Navbar/Header";
 import ProfilePage from "./pages/ProfilePage";
-import ChangePasswordPage from "./pages/ChangePasswordPage";
+import RegisterPage from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SocialAuthSuccess from "./pages/SocialAuthSuccess";
 import AdminAndStaffLoginPage from "./pages/admin/AdminAndStaffLoginPage";
+import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 // ===== END [NGUOI 1] =====
 
 // ===== [NGUOI 2] Movie Pages =====
@@ -151,7 +152,7 @@ function AppContent() {
           {/* ===== [NGUOI 5] Admin, Staff & Showtime Routes ===== */}
           {/* <Route path="/admin/dashboard" element={<DashboardPage />} /> */}
           {/* <Route path="/admin/staffs" element={<StaffManagementPage />} /> */}
-          {/* <Route path="/admin/customers" element={<CustomerManagementPage />} /> */}
+          <Route path="/admin/customers" element={<CustomerManagementPage />} />
           {/* <Route path="/admin/user/:id" element={<UserDetailPage />} /> */}
           {/* <Route path="/showtimes" element={<ShowTimeManagementPage />} /> */}
           {/* <Route path="/bookings" element={<BookingManagementPage />} /> */}
