@@ -49,7 +49,7 @@ import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 
 // ===== [NGUOI 5] Admin, Staff & Showtime Pages =====
 // import DashboardPage from "./pages/admin/DashboardPage";
-// import StaffManagementPage from "./pages/admin/StaffManagementPage";
+import StaffManagementPage from "./pages/admin/StaffManagementPage";
 // import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 // import UserDetailPage from "./pages/admin/UserDetailPage";
 // import ShowTimeManagementPage from "./pages/admin/ShowTimeManagementPage";
@@ -151,7 +151,7 @@ function AppContent() {
 
           {/* ===== [NGUOI 5] Admin, Staff & Showtime Routes ===== */}
           {/* <Route path="/admin/dashboard" element={<DashboardPage />} /> */}
-          {/* <Route path="/admin/staffs" element={<StaffManagementPage />} /> */}
+          <Route path="/admin/staffs" element={<StaffManagementPage />} />
           <Route path="/admin/customers" element={<CustomerManagementPage />} />
           {/* <Route path="/admin/user/:id" element={<UserDetailPage />} /> */}
           {/* <Route path="/showtimes" element={<ShowTimeManagementPage />} /> */}
