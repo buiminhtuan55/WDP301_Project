@@ -49,6 +49,7 @@ import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 
 // ===== [NGUOI 5] Admin, Staff & Showtime Pages =====
 // import DashboardPage from "./pages/admin/DashboardPage";
+import MovieManagementPage from "./pages/admin/MovieManagementPage";
 import StaffManagementPage from "./pages/admin/StaffManagementPage";
 // import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 // import UserDetailPage from "./pages/admin/UserDetailPage";
@@ -126,7 +127,7 @@ function AppContent() {
           {/* <Route path="/" element={<HomePage />} /> */}
           {/* <Route path="/all-movies" element={<AllMoviesPage />} /> */}
           {/* <Route path="/movies/:id" element={<MovieDetail />} /> */}
-          {/* <Route path="/movies" element={<MovieManagementPage />} /> */}
+          <Route path="/movies" element={<MovieManagementPage />} />
           {/* ===== END [NGUOI 2] ===== */}
 
           {/* ===== [NGUOI 3] Theater Routes ===== */}

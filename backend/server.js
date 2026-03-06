@@ -1,20 +1,20 @@
-import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
 // ===== [NGUOI 1] Core Config & Auth =====
+import passport from "passport";
 import { connectDB } from "./config/db.js";
 import { configurePassport } from "./config/passport.js";
-import passport from "passport";
 import errorHandler from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/auth.routes.js";
 import protectedRoutes from "./routes/protected.routes.js";
 // ===== END [NGUOI 1] =====
 
 // ===== [NGUOI 2] Movies & Reviews =====
-// import publicMovieRoutes from "./routes/publicMovie.routes.js";
+import publicMovieRoutes from "./routes/publicMovie.routes.js";
 // import reviewRoutes from "./routes/review.routes.js";
 // ===== END [NGUOI 2] =====
 
@@ -68,7 +68,7 @@ app.use("/api", protectedRoutes);
 // ===== END [NGUOI 1] =====
 
 // ===== [NGUOI 2] Movie & Review Routes =====
-// app.use("/api/movies", publicMovieRoutes);
+app.use("/api/movies", publicMovieRoutes);
 // app.use("/api/reviews", reviewRoutes);
 // ===== END [NGUOI 2] =====
 

@@ -1,80 +1,67 @@
 import { Router } from "express";
-import {
-  verifyToken,
-  requireAdmin,
-  requireStaff,
-  requireCustomer,
-} from "../middlewares/auth.js";
 import { updateUserRole } from "../controllers/auth.controller.js";
-import { logAction } from "../utils/logger.js";
-
-// ===== [NGUOI 2] Movies & Reviews =====
-// import {
-//   createMovie,
-//   updateMovie,
-//   deleteMovie,
-//   updateMovieStatus,
-//   getAllMoviesForStaff,
-// } from "../controllers/movie.controller.js";
-// import {
-//   validateCreateMovie,
-//   validateUpdateMovie,
-//   validateStatusUpdate,
-// } from "../middlewares/movieValidation.js";
-// import reviewRoutes from "./review.routes.js";
-// ===== END [NGUOI 2] =====
-
-// ===== [NGUOI 4] Bookings =====
-// import bookingRoutes from "./booking.routes.js";
-// ===== END [NGUOI 4] =====
-
-// ===== [NGUOI 5] Combo & Audit =====
-// import auditLogRoutes from "./auditLog.routes.js";
-// import comboRoutes from "./combo.routes.js";
-// ===== END [NGUOI 5] =====
+import {
+  createMovie,
+  deleteMovie,
+  getAllMoviesForStaff,
+  updateMovie,
+  updateMovieStatus
+} from "../controllers/movie.controller.js";
+import { requireAdmin, requireCustomer, requireStaff, verifyToken } from "../middlewares/auth.js";
+import {
+  validateCreateMovie,
+  validateStatusUpdate,
+  validateUpdateMovie
+} from "../middlewares/movieValidation.js";
+// import bookingRoutes from './booking.routes.js';
+// import auditLogRoutes from './auditLog.routes.js';
+// import comboRoutes from './combo.routes.js';
+// import reviewRoutes from './review.routes.js'; // Import review routes
 
 const router = Router();
 
-// ===== [NGUOI 4] Booking Routes =====
-// router.use("/bookings", bookingRoutes);
-// ===== END [NGUOI 4] =====
+// Booking routes
+// router.use('/bookings', bookingRoutes);
 
-// ===== [NGUOI 2] Review Routes =====
-// router.use("/reviews", reviewRoutes);
-// ===== END [NGUOI 2] =====
+// Review routes
+// router.use('/reviews', reviewRoutes);
 
-// ===== [NGUOI 5] Combo & Audit Routes =====
-// router.use("/combos", comboRoutes);
-// router.use("/audit-logs", auditLogRoutes);
-// ===== END [NGUOI 5] =====
+// Combo routes
+// router.use('/combos', comboRoutes);
 
-// ===== [NGUOI 1] Profile Routes =====
+// Audit Log routes (Admin only)
+// router.use('/audit-logs', auditLogRoutes);
+
+// Route lấy thông tin profile (cần đăng nhập)
 router.get("/profile", verifyToken, (req, res) => {
   res.json({
-    message: "Lay thong tin profile thanh cong",
+    message: "Lấy thông tin profile thành công",
     user: {
       id: req.user._id,
       username: req.user.username,
       email: req.user.email,
       fullName: req.user.full_name,
       role: req.user.role,
-      status: req.user.status,
-    },
+      status: req.user.status
+    }
   });
 });
 
+// Route cập nhật profile (cần đăng nhập)
 router.put("/profile", verifyToken, async (req, res) => {
   try {
     const { fullName, phone, address, dateOfBirth } = req.body;
     const user = req.user;
 
+    // Lưu trạng thái cũ
     const oldProfile = {
       full_name: user.full_name,
       phone: user.phone,
       address: user.address,
-      date_of_birth: user.date_of_birth,
+      date_of_birth: user.date_of_birth
     };
 
+    // Cập nhật thông tin user
     user.full_name = fullName || user.full_name;
     user.phone = phone || user.phone;
     user.address = address || user.address;
@@ -82,106 +69,80 @@ router.put("/profile", verifyToken, async (req, res) => {
 
     const updatedUser = await user.save();
 
+    // Ghi log những thay đổi
     if (oldProfile.full_name !== updatedUser.full_name) {
-      await logAction(
-        user.id,
-        "User",
-        user.id,
-        "full_name",
-        oldProfile.full_name,
-        updatedUser.full_name
-      );
+      await logAction(user.id, 'User', user.id, 'full_name', oldProfile.full_name, updatedUser.full_name);
     }
     if (oldProfile.phone !== updatedUser.phone) {
-      await logAction(
-        user.id,
-        "User",
-        user.id,
-        "phone",
-        oldProfile.phone,
-        updatedUser.phone
-      );
+      await logAction(user.id, 'User', user.id, 'phone', oldProfile.phone, updatedUser.phone);
     }
     if (oldProfile.address !== updatedUser.address) {
-      await logAction(
-        user.id,
-        "User",
-        user.id,
-        "address",
-        oldProfile.address,
-        updatedUser.address
-      );
+      await logAction(user.id, 'User', user.id, 'address', oldProfile.address, updatedUser.address);
     }
     if (oldProfile.date_of_birth !== updatedUser.date_of_birth) {
-      await logAction(
-        user.id,
-        "User",
-        user.id,
-        "date_of_birth",
-        oldProfile.date_of_birth,
-        updatedUser.date_of_birth
-      );
+      await logAction(user.id, 'User', user.id, 'date_of_birth', oldProfile.date_of_birth, updatedUser.date_of_birth);
     }
 
-    res.json({ message: "Cap nhat profile thanh cong" });
+    res.json({ message: "Cập nhật profile thành công" });
   } catch (err) {
-    res.status(500).json({ message: "Loi cap nhat profile" });
+    res.status(500).json({ message: "Lỗi cập nhật profile" });
   }
 });
 
+// Route chỉ dành cho admin
 router.get("/admin/users", verifyToken, requireAdmin, (req, res) => {
   res.json({
-    message: "Danh sach tat ca users (chi admin)",
-    data: "Day la du lieu nhay cam chi admin moi thay",
+    message: "Danh sách tất cả users (chỉ admin)",
+    data: "Đây là dữ liệu nhạy cảm chỉ admin mới thấy"
   });
 });
 
-router.patch(
-  "/admin/users/:userId/role",
-  verifyToken,
-  requireAdmin,
-  updateUserRole
-);
+// Route chỉ dành cho admin để cập nhật vai trò của staff
+router.patch("/admin/users/:userId/role", verifyToken, requireAdmin, updateUserRole);
 
+// Route dành cho staff và admin
 router.get("/staff/dashboard", verifyToken, requireStaff, (req, res) => {
   res.json({
-    message: "Dashboard nhan vien",
-    data: "Thong ke doanh thu, phim, ve...",
+    message: "Dashboard nhân viên",
+    data: "Thống kê doanh thu, phim, vé..."
   });
 });
 
+// Route dành cho customer (và cao hơn)
 router.get("/customer/bookings", verifyToken, requireCustomer, (req, res) => {
   res.json({
-    message: "Lich su dat ve cua ban",
+    message: "Lịch sử đặt vé của bạn",
     userId: req.user._id,
-    data: "Danh sach ve da dat...",
+    data: "Danh sách vé đã đặt..."
   });
 });
 
+// Route test phân quyền
 router.get("/test-auth", verifyToken, (req, res) => {
   res.json({
-    message: "Ban da dang nhap thanh cong!",
+    message: "Bạn đã đăng nhập thành công!",
     user: {
       id: req.user._id,
       username: req.user.username,
-      role: req.user.role,
-    },
+      role: req.user.role
+    }
   });
 });
-// ===== END [NGUOI 1] =====
 
-// ===== [NGUOI 2] Protected Movie Routes =====
-// router.get("/movies/all", verifyToken, requireStaff, getAllMoviesForStaff);
-// router.post("/movies", verifyToken, requireStaff, validateCreateMovie, createMovie);
-// router.put("/movies/:id", verifyToken, requireStaff, validateUpdateMovie, updateMovie);
-// router.delete("/movies/:id", verifyToken, requireStaff, deleteMovie);
-// router.patch(
-//   "/movies/:id/status",
-//   verifyToken,
-//   requireStaff,
-//   validateStatusUpdate,
-//   updateMovieStatus
-// );
-// ===== END [NGUOI 2] =====
+// Protected movie routes (chỉ staff/admin)
+// Lấy tất cả phim (bao gồm cả inactive) cho staff/admin
+router.get("/movies/all", verifyToken, requireStaff, getAllMoviesForStaff);
+
+// Tạo phim mới
+router.post("/movies", verifyToken, requireStaff, validateCreateMovie, createMovie);
+
+// Cập nhật phim
+router.put("/movies/:id", verifyToken, requireStaff, validateUpdateMovie, updateMovie);
+
+// Xóa phim
+router.delete("/movies/:id", verifyToken, requireStaff, deleteMovie);
+
+// Cập nhật trạng thái phim
+router.patch("/movies/:id/status", verifyToken, requireStaff, validateStatusUpdate, updateMovieStatus);
 
 export default router;
