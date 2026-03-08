@@ -1,8 +1,8 @@
 import { Router } from "express";
-import {
-  getAllGenres,
-  getAllMovies,
+import { 
+  getAllMovies, 
   getMovieById,
+  getAllGenres,
   getMoviesByGenre
 } from "../controllers/movie.controller.js";
 
