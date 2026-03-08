@@ -15,7 +15,7 @@ import protectedRoutes from "./routes/protected.routes.js";
 
 // ===== [NGUOI 2] Movies & Reviews =====
 import publicMovieRoutes from "./routes/publicMovie.routes.js";
-// import reviewRoutes from "./routes/review.routes.js";
+import reviewRoutes from "./routes/review.routes.js";
 // ===== END [NGUOI 2] =====
 
 // ===== [NGUOI 3] Theaters, Rooms & Seats =====
@@ -69,7 +69,7 @@ app.use("/api", protectedRoutes);
 
 // ===== [NGUOI 2] Movie & Review Routes =====
 app.use("/api/movies", publicMovieRoutes);
-// app.use("/api/reviews", reviewRoutes);
+app.use("/api/reviews", reviewRoutes);
 // ===== END [NGUOI 2] =====
 
 // ===== [NGUOI 3] Theater, Room & Seat Routes =====
