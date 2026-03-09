@@ -23,8 +23,8 @@ import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 
 // ===== [NGUOI 2] Movie Pages =====
 import HomePage from "./pages/HomePage";
-// import AllMoviesPage from "./pages/AllMoviesPage";
-// import MovieDetail from "./pages/MovieDetail";
+import AllMoviesPage from "./pages/AllMoviesPage";
+import MovieDetail from "./pages/MovieDetail";
 // import MovieManagementPage from "./pages/admin/MovieManagementPage";
 // ===== END [NGUOI 2] =====
 
@@ -125,8 +125,8 @@ function AppContent() {
 
           {/* ===== [NGUOI 2] Movie Routes ===== */}
           <Route path="/" element={<HomePage />} />
-          {/* <Route path="/all-movies" element={<AllMoviesPage />} /> */}
-          {/* <Route path="/movies/:id" element={<MovieDetail />} /> */}
+          <Route path="/all-movies" element={<AllMoviesPage />} />
+          <Route path="/movies/:id" element={<MovieDetail />} />
           <Route path="/movies" element={<MovieManagementPage />} />
           {/* ===== END [NGUOI 2] ===== */}
 
