@@ -29,10 +29,10 @@ import MovieDetail from "./pages/MovieDetail";
 // ===== END [NGUOI 2] =====
 
 // ===== [NGUOI 3] Theater Pages =====
-// import TheatersManagement from "./pages/admin/TheatersManagement";
-// import RoomManagement from "./pages/admin/RoomManagementPage";
-// import TheaterListPage from "./pages/theaters/TheaterListPage";
-// import TheaterDetailPage from "./pages/theaters/TheaterDetailPage";
+import TheatersManagement from "./pages/admin/TheatersManagement";
+import RoomManagement from "./pages/admin/RoomManagementPage";
+import TheaterListPage from "./pages/theaters/TheaterListPage";
+import TheaterDetailPage from "./pages/theaters/TheaterDetailPage";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Pages =====
@@ -131,10 +131,10 @@ function AppContent() {
           {/* ===== END [NGUOI 2] ===== */}
 
           {/* ===== [NGUOI 3] Theater Routes ===== */}
-          {/* <Route path="/theaters" element={<TheaterListPage />} /> */}
-          {/* <Route path="/theaters/:id" element={<TheaterDetailPage />} /> */}
-          {/* <Route path="/admin/theaters" element={<TheatersManagement />} /> */}
-          {/* <Route path="/admin/rooms" element={<RoomManagement />} /> */}
+          <Route path="/theaters" element={<TheaterListPage />} />
+          <Route path="/theaters/:id" element={<TheaterDetailPage />} />
+          <Route path="/admin/theaters" element={<TheatersManagement />} />
+          <Route path="/admin/rooms" element={<RoomManagement />} />
           {/* ===== END [NGUOI 3] ===== */}
 
           {/* ===== [NGUOI 4] Booking & Payment Routes ===== */}
