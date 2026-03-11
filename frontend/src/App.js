@@ -22,17 +22,17 @@ import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 // ===== END [NGUOI 1] =====
 
 // ===== [NGUOI 2] Movie Pages =====
-import HomePage from "./pages/HomePage";
 import AllMoviesPage from "./pages/AllMoviesPage";
+import HomePage from "./pages/HomePage";
 import MovieDetail from "./pages/MovieDetail";
 // import MovieManagementPage from "./pages/admin/MovieManagementPage";
 // ===== END [NGUOI 2] =====
 
 // ===== [NGUOI 3] Theater Pages =====
-import TheatersManagement from "./pages/admin/TheatersManagement";
 import RoomManagement from "./pages/admin/RoomManagementPage";
-import TheaterListPage from "./pages/theaters/TheaterListPage";
+import TheatersManagement from "./pages/admin/TheatersManagement";
 import TheaterDetailPage from "./pages/theaters/TheaterDetailPage";
+import TheaterListPage from "./pages/theaters/TheaterListPage";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Pages =====
@@ -50,6 +50,7 @@ import TheaterDetailPage from "./pages/theaters/TheaterDetailPage";
 // ===== [NGUOI 5] Admin, Staff & Showtime Pages =====
 // import DashboardPage from "./pages/admin/DashboardPage";
 import MovieManagementPage from "./pages/admin/MovieManagementPage";
+import ShowtimeManagementPage from "./pages/admin/ShowTimeManagementPage";
 import StaffManagementPage from "./pages/admin/StaffManagementPage";
 // import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 // import UserDetailPage from "./pages/admin/UserDetailPage";
@@ -155,7 +156,7 @@ function AppContent() {
           <Route path="/admin/staffs" element={<StaffManagementPage />} />
           <Route path="/admin/customers" element={<CustomerManagementPage />} />
           {/* <Route path="/admin/user/:id" element={<UserDetailPage />} /> */}
-          {/* <Route path="/showtimes" element={<ShowTimeManagementPage />} /> */}
+          <Route path="/showtimes" element={<ShowtimeManagementPage />} />
           {/* <Route path="/bookings" element={<BookingManagementPage />} /> */}
           {/* <Route path="/bookings/:id" element={<BookingDetailPage />} /> */}
           {/* <Route path="/combos" element={<CombosManagement />} /> */}
