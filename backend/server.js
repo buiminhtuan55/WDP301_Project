@@ -15,14 +15,14 @@ import protectedRoutes from "./routes/protected.routes.js";
 
 // ===== [NGUOI 2] Movies & Reviews =====
 import publicMovieRoutes from "./routes/publicMovie.routes.js";
-// import reviewRoutes from "./routes/review.routes.js";
+import reviewRoutes from "./routes/review.routes.js";
 // ===== END [NGUOI 2] =====
 
 // ===== [NGUOI 3] Theaters, Rooms & Seats =====
-// import theaterRoutes from "./routes/theater.routes.js";
-// import roomRoutes from "./routes/room.routes.js";
-// import seatRoutes from "./routes/seat.routes.js";
-// import publicRoutes from "./routes/public/public.routes.js";
+import theaterRoutes from "./routes/theater.routes.js";
+import roomRoutes from "./routes/room.routes.js";
+import seatRoutes from "./routes/seat.routes.js";
+import publicRoutes from "./routes/public/public.routes.js";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Bookings & Payments =====
@@ -69,14 +69,14 @@ app.use("/api", protectedRoutes);
 
 // ===== [NGUOI 2] Movie & Review Routes =====
 app.use("/api/movies", publicMovieRoutes);
-// app.use("/api/reviews", reviewRoutes);
+app.use("/api/reviews", reviewRoutes);
 // ===== END [NGUOI 2] =====
 
 // ===== [NGUOI 3] Theater, Room & Seat Routes =====
-// app.use("/api/public", publicRoutes);
-// app.use("/api/theaters", theaterRoutes);
-// app.use("/api/rooms", roomRoutes);
-// app.use("/api/seats", seatRoutes);
+app.use("/api/public", publicRoutes);
+app.use("/api/theaters", theaterRoutes);
+app.use("/api/rooms", roomRoutes);
+app.use("/api/seats", seatRoutes);
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Routes =====
