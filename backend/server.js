@@ -32,7 +32,7 @@ import theaterRoutes from "./routes/theater.routes.js";
 
 // ===== [NGUOI 5] Showtimes, Combos, AuditLog & Cron =====
 import showtimeRoutes from "./routes/showtime.routes.js";
-// import comboRoutes from "./routes/combo.routes.js";
+import comboRoutes from "./routes/combo.routes.js";
 // import publicComboRoutes from "./routes/public/publicCombo.routes.js";
 // import auditLogRoutes from "./routes/auditLog.routes.js";
 // import "./cron/scheduler.js";
@@ -86,7 +86,7 @@ app.use("/api/seats", seatRoutes);
 
 // ===== [NGUOI 5] Showtime, Combo & AuditLog Routes =====
 app.use("/api/showtimes", showtimeRoutes);
-// app.use("/api/combos", comboRoutes);
+app.use("/api/combos", comboRoutes);
 // app.use("/api/combos", publicComboRoutes);
 // app.use("/api/auditlog", auditLogRoutes);
 // ===== END [NGUOI 5] =====
