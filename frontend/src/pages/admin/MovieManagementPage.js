@@ -1,49 +1,49 @@
-import { AddIcon, EditIcon, LockIcon, UnlockIcon } from "@chakra-ui/icons";
+import { useEffect, useState } from "react";
 import {
-  Badge,
   Box,
-  Button,
-  Center,
-  Flex,
-  FormControl,
-  FormLabel,
   Heading,
-  HStack,
-  IconButton,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
   Image,
+  Badge,
+  Spinner,
+  Text,
+  Flex,
+  useToast,
+  IconButton,
   Input,
+  Select,
+  HStack,
+  Button,
   Modal,
-  ModalBody,
-  ModalCloseButton,
+  ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalOverlay,
-  Select,
-  Spinner,
-  Table,
-  Tag,
-  TagCloseButton,
-  TagLabel,
-  Tbody,
-  Td,
-  Text,
-  Textarea,
-  Th,
-  Thead,
-  Tooltip,
-  Tr,
+  ModalBody,
+  ModalCloseButton,
   useDisclosure,
-  useToast,
+  FormControl,
+  FormLabel,
+  Textarea,
   VStack,
+  Tooltip,
+  Checkbox,
+  CheckboxGroup,
   Wrap,
-  WrapItem
+  WrapItem,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  Center,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-
-import { useAdminOrStaffL2Auth } from "../../hooks/useAdminOrStaffL2Auth";
+import { EditIcon, UnlockIcon, LockIcon, AddIcon } from "@chakra-ui/icons";
 import SidebarAdmin from "../Navbar/SidebarAdmin";
 import SidebarStaff from "../Navbar/SidebarStaff";
-
+import { useAdminOrStaffL2Auth } from "../../hooks/useAdminOrStaffL2Auth";
 
 const MovieManagementPage = () => {
   const isAuthorized = useAdminOrStaffL2Auth();
@@ -83,12 +83,12 @@ const MovieManagementPage = () => {
       roleData = { role: directRole };
     }
   }
-
+  
   const role = roleData?.role || "";
-
+  
   // Xác định role và quyền hạn
   let isAdmin = false;
-
+  
   if (role.toLowerCase() === "admin") {
     isAdmin = true;
   } else if (role.toLowerCase() === "lv2") {
@@ -112,7 +112,7 @@ const MovieManagementPage = () => {
       });
 
       if (!response.ok) throw new Error("Không thể tải dữ liệu phim");
-
+      
       const data = await response.json();
       setMovies(data.data || []);
 
@@ -171,9 +171,9 @@ const MovieManagementPage = () => {
 
   // Kiểm tra xem có phim trùng tên đang active không
   const hasDuplicateActiveMovie = (movieTitle, currentMovieId) => {
-    return movies.some(m =>
-      m.title?.toLowerCase() === movieTitle?.toLowerCase() &&
-      m.status === "active" &&
+    return movies.some(m => 
+      m.title?.toLowerCase() === movieTitle?.toLowerCase() && 
+      m.status === "active" && 
       m._id !== currentMovieId
     );
   };
@@ -552,7 +552,7 @@ const MovieManagementPage = () => {
                 <Tbody>
                   {paginatedMovies.map((movie) => {
                     const canUnlock = !hasDuplicateActiveMovie(movie.title, movie._id);
-
+                    
                     return (
                       <Tr key={movie._id} _hover={{ bg: "#252a38" }} transition="0.2s">
                         <Td>
@@ -587,7 +587,7 @@ const MovieManagementPage = () => {
                         </Td>
                         <Td fontSize="sm">{formatDate(movie.release_date)}</Td>
                         <Td>
-                          <Badge
+                          <Badge 
                             colorScheme={movie.status === "active" ? "green" : "red"}
                             fontSize="xs"
                             px={2}
@@ -607,13 +607,13 @@ const MovieManagementPage = () => {
                               _hover={{ transform: "scale(1.1)" }}
                               transition="0.2s"
                             />
-                            <Tooltip
+                            <Tooltip 
                               label={
                                 movie.status === "inactive" && !canUnlock
                                   ? "Không thể mở khóa: Đã có phim cùng tên đang hoạt động"
                                   : movie.status === "inactive"
-                                    ? "Mở khóa phim"
-                                    : "Khóa phim"
+                                  ? "Mở khóa phim"
+                                  : "Khóa phim"
                               }
                               hasArrow
                             >
@@ -839,7 +839,7 @@ const MovieManagementPage = () => {
                   <Button onClick={onClose} bg="gray.700" _hover={{ bg: "gray.600" }}>
                     Hủy
                   </Button>
-                  <Button
+                  <Button 
                     colorScheme="orange"
                     onClick={handleSubmit}
                     isDisabled={!formData.title || !formData.description || !formData.duration || !formData.release_date}
