@@ -36,8 +36,8 @@ import TheaterListPage from "./pages/theaters/TheaterListPage";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Pages =====
-// import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
-// import SeatSelection from "./pages/bookings/SeatSelection";
+import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
+import SeatSelection from "./pages/bookings/SeatSelection";
 // import CartPage from "./pages/bookings/CartCheckoutPage";
 // import PaymentSuccessPage from "./pages/bookings/PaymentSuccessPage";
 // import PaymentFailedPage from "./pages/bookings/PaymentFailedPage";
@@ -139,8 +139,8 @@ function AppContent() {
           {/* ===== END [NGUOI 3] ===== */}
 
           {/* ===== [NGUOI 4] Booking & Payment Routes ===== */}
-          {/* <Route path="/bookings/showtimes/:movieId" element={<ShowtimeSelection />} /> */}
-          {/* <Route path="/bookings/seats/:showtimeId" element={<SeatSelection />} /> */}
+          <Route path="/bookings/showtimes/:movieId" element={<ShowtimeSelection />} />
+          <Route path="/bookings/seats/:showtimeId" element={<SeatSelection />} />
           {/* <Route path="/bookings/checkout/:bookingId" element={<CartPage />} /> */}
           {/* <Route path="/bookings/cart" element={<CartPage />} /> */}
           {/* <Route path="/bookings/cancelled" element={<BookingCancelledPage />} /> */}
