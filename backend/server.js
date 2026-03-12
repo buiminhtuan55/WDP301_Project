@@ -26,7 +26,7 @@ import publicRoutes from "./routes/public/public.routes.js";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Bookings & Payments =====
-// import bookingRoutes from "./routes/booking.routes.js";
+import bookingRoutes from "./routes/booking.routes.js";
 // import paymentRoutes from "./routes/payment.routes.js";
 // ===== END [NGUOI 4] =====
 
@@ -80,7 +80,7 @@ app.use("/api/seats", seatRoutes);
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Routes =====
-// app.use("/api/bookings", bookingRoutes);
+app.use("/api/bookings", bookingRoutes);
 // app.use("/api/payments", paymentRoutes);
 // ===== END [NGUOI 4] =====
 
