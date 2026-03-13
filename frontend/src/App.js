@@ -36,8 +36,8 @@ import TheaterListPage from "./pages/theaters/TheaterListPage";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Pages =====
-// import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
-// import SeatSelection from "./pages/bookings/SeatSelection";
+import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
+import SeatSelection from "./pages/bookings/SeatSelection";
 // import CartPage from "./pages/bookings/CartCheckoutPage";
 // import PaymentSuccessPage from "./pages/bookings/PaymentSuccessPage";
 // import PaymentFailedPage from "./pages/bookings/PaymentFailedPage";
@@ -57,7 +57,7 @@ import StaffManagementPage from "./pages/admin/StaffManagementPage";
 // import ShowTimeManagementPage from "./pages/admin/ShowTimeManagementPage";
 // import BookingManagementPage from "./pages/admin/BookingManagementPage";
 // import BookingDetailPage from "./pages/admin/BookingDetailPage";
-// import CombosManagement from "./pages/admin/CombosManagement";
+import CombosManagement from "./pages/admin/CombosManagement";
 // import StaffL1Page from "./pages/staff/StaffL1Page";
 // import StaffL2Page from "./pages/staff/StaffL2Page";
 // import TicketSeatSelectPage from "./pages/staff/TicketSeatSelectPage";
@@ -139,8 +139,8 @@ function AppContent() {
           {/* ===== END [NGUOI 3] ===== */}
 
           {/* ===== [NGUOI 4] Booking & Payment Routes ===== */}
-          {/* <Route path="/bookings/showtimes/:movieId" element={<ShowtimeSelection />} /> */}
-          {/* <Route path="/bookings/seats/:showtimeId" element={<SeatSelection />} /> */}
+          <Route path="/bookings/showtimes/:movieId" element={<ShowtimeSelection />} />
+          <Route path="/bookings/seats/:showtimeId" element={<SeatSelection />} />
           {/* <Route path="/bookings/checkout/:bookingId" element={<CartPage />} /> */}
           {/* <Route path="/bookings/cart" element={<CartPage />} /> */}
           {/* <Route path="/bookings/cancelled" element={<BookingCancelledPage />} /> */}
@@ -157,9 +157,9 @@ function AppContent() {
           <Route path="/admin/customers" element={<CustomerManagementPage />} />
           {/* <Route path="/admin/user/:id" element={<UserDetailPage />} /> */}
           <Route path="/showtimes" element={<ShowtimeManagementPage />} />
-          {/* <Route path="/bookings" element={<BookingManagementPage />} /> */}
+          {/* <Route path="/bookings" element={<BookingManagementPage />} />  */}
           {/* <Route path="/bookings/:id" element={<BookingDetailPage />} /> */}
-          {/* <Route path="/combos" element={<CombosManagement />} /> */}
+          <Route path="/combos" element={<CombosManagement />} />
           {/* <Route path="/staff/l1" element={<StaffL1Page />} /> */}
           {/* <Route path="/staff/l2" element={<StaffL2Page />} /> */}
           {/* <Route path="/staff/ticket" element={<TicketSeatSelectPage />} /> */}

@@ -26,13 +26,13 @@ import theaterRoutes from "./routes/theater.routes.js";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Bookings & Payments =====
-// import bookingRoutes from "./routes/booking.routes.js";
+import bookingRoutes from "./routes/booking.routes.js";
 // import paymentRoutes from "./routes/payment.routes.js";
 // ===== END [NGUOI 4] =====
 
 // ===== [NGUOI 5] Showtimes, Combos, AuditLog & Cron =====
 import showtimeRoutes from "./routes/showtime.routes.js";
-// import comboRoutes from "./routes/combo.routes.js";
+import comboRoutes from "./routes/combo.routes.js";
 // import publicComboRoutes from "./routes/public/publicCombo.routes.js";
 // import auditLogRoutes from "./routes/auditLog.routes.js";
 // import "./cron/scheduler.js";
@@ -80,13 +80,13 @@ app.use("/api/seats", seatRoutes);
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Routes =====
-// app.use("/api/bookings", bookingRoutes);
+app.use("/api/bookings", bookingRoutes);
 // app.use("/api/payments", paymentRoutes);
 // ===== END [NGUOI 4] =====
 
 // ===== [NGUOI 5] Showtime, Combo & AuditLog Routes =====
 app.use("/api/showtimes", showtimeRoutes);
-// app.use("/api/combos", comboRoutes);
+app.use("/api/combos", comboRoutes);
 // app.use("/api/combos", publicComboRoutes);
 // app.use("/api/auditlog", auditLogRoutes);
 // ===== END [NGUOI 5] =====
