@@ -27,7 +27,7 @@ import theaterRoutes from "./routes/theater.routes.js";
 
 // ===== [NGUOI 4] Bookings & Payments =====
 import bookingRoutes from "./routes/booking.routes.js";
-// import paymentRoutes from "./routes/payment.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
 // ===== END [NGUOI 4] =====
 
 // ===== [NGUOI 5] Showtimes, Combos, AuditLog & Cron =====
@@ -81,7 +81,7 @@ app.use("/api/seats", seatRoutes);
 
 // ===== [NGUOI 4] Booking & Payment Routes =====
 app.use("/api/bookings", bookingRoutes);
-// app.use("/api/payments", paymentRoutes);
+app.use("/api/payments", paymentRoutes);
 // ===== END [NGUOI 4] =====
 
 // ===== [NGUOI 5] Showtime, Combo & AuditLog Routes =====
