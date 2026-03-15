@@ -42,7 +42,7 @@ const ShowtimeSelection = () => {
       try {
         const [movieRes, theatersRes, showtimesRes] = await Promise.all([
           new Promise((resolve) =>
-            apiService.getById("/api/public/movies/", movieId, (data, success) =>
+            apiService.getById("/api/movies/", movieId, (data, success) =>
               resolve({ data, success })
             )
           ),
@@ -55,7 +55,8 @@ const ShowtimeSelection = () => {
           ),
           new Promise((resolve) =>
             apiService.get(
-              `/api/showtimes?movie_id=${movieId}`,
+              "/api/showtimes",
+              { movie_id: movieId },
               (data, success) => resolve({ data, success })
             )
           ),

@@ -38,13 +38,13 @@ import TheaterListPage from "./pages/theaters/TheaterListPage";
 // ===== [NGUOI 4] Booking & Payment Pages =====
 import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
 import SeatSelection from "./pages/bookings/SeatSelection";
-// import CartPage from "./pages/bookings/CartCheckoutPage";
-// import PaymentSuccessPage from "./pages/bookings/PaymentSuccessPage";
-// import PaymentFailedPage from "./pages/bookings/PaymentFailedPage";
-// import TicketHistoryPage from "./pages/bookings/TicketHistoryPage";
-// import TicketDetailPage from "./pages/bookings/TicketDetailPage";
-// import ETicketPage from "./pages/bookings/ETicketPage";
-// import BookingCancelledPage from "./pages/bookings/BookingCancelledPage";
+import CartPage from "./pages/bookings/CartCheckoutPage";
+import PaymentSuccessPage from "./pages/bookings/PaymentSuccessPage";
+import PaymentFailedPage from "./pages/bookings/PaymentFailedPage";
+import TicketHistoryPage from "./pages/bookings/TicketHistoryPage";
+import TicketDetailPage from "./pages/bookings/TicketDetailPage";
+import ETicketPage from "./pages/bookings/ETicketPage";
+import BookingCancelledPage from "./pages/bookings/BookingCancelledPage";
 // ===== END [NGUOI 4] =====
 
 // ===== [NGUOI 5] Admin, Staff & Showtime Pages =====
@@ -141,14 +141,14 @@ function AppContent() {
           {/* ===== [NGUOI 4] Booking & Payment Routes ===== */}
           <Route path="/bookings/showtimes/:movieId" element={<ShowtimeSelection />} />
           <Route path="/bookings/seats/:showtimeId" element={<SeatSelection />} />
-          {/* <Route path="/bookings/checkout/:bookingId" element={<CartPage />} /> */}
-          {/* <Route path="/bookings/cart" element={<CartPage />} /> */}
-          {/* <Route path="/bookings/cancelled" element={<BookingCancelledPage />} /> */}
-          {/* <Route path="/bookings/eticket" element={<ETicketPage />} /> */}
-          {/* <Route path="/payment-success" element={<PaymentSuccessPage />} /> */}
-          {/* <Route path="/payment-failed" element={<PaymentFailedPage />} /> */}
-          {/* <Route path="/ticket-history" element={<TicketHistoryPage />} /> */}
-          {/* <Route path="/ticket-detail/:id" element={<TicketDetailPage />} /> */}
+          <Route path="/bookings/checkout/:bookingId" element={<CartPage />} />
+          <Route path="/bookings/cart" element={<CartPage />} />
+          <Route path="/bookings/cancelled" element={<BookingCancelledPage />} />
+          <Route path="/bookings/eticket/:bookingId" element={<ETicketPage />} />
+          <Route path="/payment-success" element={<PaymentSuccessPage />} />
+          <Route path="/payment-failed" element={<PaymentFailedPage />} />
+          <Route path="/ticket-history" element={<TicketHistoryPage />} />
+          <Route path="/ticket-detail/:id" element={<TicketDetailPage />} />
           {/* ===== END [NGUOI 4] ===== */}
 
           {/* ===== [NGUOI 5] Admin, Staff & Showtime Routes ===== */}
