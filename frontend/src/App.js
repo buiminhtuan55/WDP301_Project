@@ -25,7 +25,6 @@ import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 import AllMoviesPage from "./pages/AllMoviesPage";
 import HomePage from "./pages/HomePage";
 import MovieDetail from "./pages/MovieDetail";
-// import MovieManagementPage from "./pages/admin/MovieManagementPage";
 // ===== END [NGUOI 2] =====
 
 // ===== [NGUOI 3] Theater Pages =====
@@ -36,34 +35,32 @@ import TheaterListPage from "./pages/theaters/TheaterListPage";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Pages =====
-import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
-import SeatSelection from "./pages/bookings/SeatSelection";
-import CartPage from "./pages/bookings/CartCheckoutPage";
-import PaymentSuccessPage from "./pages/bookings/PaymentSuccessPage";
-import PaymentFailedPage from "./pages/bookings/PaymentFailedPage";
-import TicketHistoryPage from "./pages/bookings/TicketHistoryPage";
-import TicketDetailPage from "./pages/bookings/TicketDetailPage";
-import ETicketPage from "./pages/bookings/ETicketPage";
 import BookingCancelledPage from "./pages/bookings/BookingCancelledPage";
+import CartPage from "./pages/bookings/CartCheckoutPage";
+import ETicketPage from "./pages/bookings/ETicketPage";
+import PaymentFailedPage from "./pages/bookings/PaymentFailedPage";
+import PaymentSuccessPage from "./pages/bookings/PaymentSuccessPage";
+import SeatSelection from "./pages/bookings/SeatSelection";
+import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
+import TicketDetailPage from "./pages/bookings/TicketDetailPage";
+import TicketHistoryPage from "./pages/bookings/TicketHistoryPage";
 // ===== END [NGUOI 4] =====
 
 // ===== [NGUOI 5] Admin, Staff & Showtime Pages =====
-// import DashboardPage from "./pages/admin/DashboardPage";
+import BookingDetailPage from "./pages/admin/BookingDetailPage";
+import BookingManagementPage from "./pages/admin/BookingManagementPage";
+import CombosManagement from "./pages/admin/CombosManagement";
+import DashboardPage from "./pages/admin/DashboardPage";
 import MovieManagementPage from "./pages/admin/MovieManagementPage";
 import ShowtimeManagementPage from "./pages/admin/ShowTimeManagementPage";
 import StaffManagementPage from "./pages/admin/StaffManagementPage";
-// import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
-// import UserDetailPage from "./pages/admin/UserDetailPage";
-// import ShowTimeManagementPage from "./pages/admin/ShowTimeManagementPage";
-// import BookingManagementPage from "./pages/admin/BookingManagementPage";
-// import BookingDetailPage from "./pages/admin/BookingDetailPage";
-import CombosManagement from "./pages/admin/CombosManagement";
-// import StaffL1Page from "./pages/staff/StaffL1Page";
-// import StaffL2Page from "./pages/staff/StaffL2Page";
-// import TicketSeatSelectPage from "./pages/staff/TicketSeatSelectPage";
-// import PayOSReturnHandler from "./pages/staff/PayOSReturnHandler";
-// import StaffPaymentSuccessPage from "./pages/staff/StaffPaymentSuccessPage";
-// import StaffPaymentFailedPage from "./pages/staff/StaffPaymentFailedPage";
+import UserDetailPage from "./pages/admin/UserDetailPage";
+import PayOSReturnHandler from "./pages/staff/PayOSReturnHandler";
+import StaffL1Page from "./pages/staff/StaffL1Page";
+import StaffL2Page from "./pages/staff/StaffL2Page";
+import StaffPaymentFailedPage from "./pages/staff/StaffPaymentFailedPage";
+import StaffPaymentSuccessPage from "./pages/staff/StaffPaymentSuccessPage";
+import TicketSeatSelectPage from "./pages/staff/TicketSeatSelectPage";
 // ===== END [NGUOI 5] =====
 
 function AppContent() {
@@ -152,20 +149,20 @@ function AppContent() {
           {/* ===== END [NGUOI 4] ===== */}
 
           {/* ===== [NGUOI 5] Admin, Staff & Showtime Routes ===== */}
-          {/* <Route path="/admin/dashboard" element={<DashboardPage />} /> */}
+          <Route path="/admin/dashboard" element={<DashboardPage />} />
           <Route path="/admin/staffs" element={<StaffManagementPage />} />
           <Route path="/admin/customers" element={<CustomerManagementPage />} />
-          {/* <Route path="/admin/user/:id" element={<UserDetailPage />} /> */}
+          <Route path="/admin/user/:id" element={<UserDetailPage />} />
           <Route path="/showtimes" element={<ShowtimeManagementPage />} />
-          {/* <Route path="/bookings" element={<BookingManagementPage />} />  */}
-          {/* <Route path="/bookings/:id" element={<BookingDetailPage />} /> */}
+          <Route path="/bookings" element={<BookingManagementPage />} />
+          <Route path="/bookings/:id" element={<BookingDetailPage />} />
           <Route path="/combos" element={<CombosManagement />} />
-          {/* <Route path="/staff/l1" element={<StaffL1Page />} /> */}
-          {/* <Route path="/staff/l2" element={<StaffL2Page />} /> */}
-          {/* <Route path="/staff/ticket" element={<TicketSeatSelectPage />} /> */}
-          {/* <Route path="/staff/payos-return" element={<PayOSReturnHandler />} /> */}
-          {/* <Route path="/staff/payment-success" element={<StaffPaymentSuccessPage />} /> */}
-          {/* <Route path="/staff/payment-failed" element={<StaffPaymentFailedPage />} /> */}
+          <Route path="/staff/l1" element={<StaffL1Page />} />
+          <Route path="/staff/l2" element={<StaffL2Page />} />
+          <Route path="/staff/ticket" element={<TicketSeatSelectPage />} />
+          <Route path="/staff/payos-return" element={<PayOSReturnHandler />} />
+          <Route path="/staff/payment-success" element={<StaffPaymentSuccessPage />} />
+          <Route path="/staff/payment-failed" element={<StaffPaymentFailedPage />} />
           {/* ===== END [NGUOI 5] ===== */}
 
           <Route path="*" element={<h1>404 - Not Found</h1>} />

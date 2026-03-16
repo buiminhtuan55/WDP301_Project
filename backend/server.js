@@ -31,12 +31,12 @@ import paymentRoutes from "./routes/payment.routes.js";
 // ===== END [NGUOI 4] =====
 
 // ===== [NGUOI 5] Showtimes, Combos, AuditLog & Cron =====
-import showtimeRoutes from "./routes/showtime.routes.js";
 import comboRoutes from "./routes/combo.routes.js";
-// import publicComboRoutes from "./routes/public/publicCombo.routes.js";
-// import auditLogRoutes from "./routes/auditLog.routes.js";
+import publicComboRoutes from "./routes/public/publicCombo.routes.js";
+import showtimeRoutes from "./routes/showtime.routes.js";
+
 // import "./cron/scheduler.js";
-// import updateShowtimeStatus from "./cron/showtime.cron.js";
+import updateShowtimeStatus from "./cron/showtime.cron.js";
 // ===== END [NGUOI 5] =====
 
 const __filename = fileURLToPath(import.meta.url);
@@ -87,8 +87,7 @@ app.use("/api/payments", paymentRoutes);
 // ===== [NGUOI 5] Showtime, Combo & AuditLog Routes =====
 app.use("/api/showtimes", showtimeRoutes);
 app.use("/api/combos", comboRoutes);
-// app.use("/api/combos", publicComboRoutes);
-// app.use("/api/auditlog", auditLogRoutes);
+app.use("/api/combos", publicComboRoutes);
 // ===== END [NGUOI 5] =====
 
 app.use(errorHandler);
@@ -98,7 +97,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   connectDB();
   // ===== [NGUOI 5] Cron bootstrap =====
-  // updateShowtimeStatus();
+  updateShowtimeStatus();
   // ===== END [NGUOI 5] =====
   console.log(`Server is running on port ${PORT}`);
 });
