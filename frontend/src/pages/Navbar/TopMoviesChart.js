@@ -39,24 +39,40 @@ export default function TopMoviesChart() {
 
         successBookings.forEach((b) => {
           // Truy cập Tên Phim qua đường dẫn mới: showtime_id.movie_id.title
+<<<<<<< HEAD
           const movieTitle = b.showtime_id?.movie_id?.title
 
           if (movieTitle) {
             // Cộng dồn 1 cho mỗi booking thành công
             movieBookingCount[movieTitle] = (movieBookingCount[movieTitle] || 0) + 1
+=======
+          const movieTitle = b.showtime_id?.movie_id?.title 
+          
+          if (movieTitle) {
+              // Cộng dồn 1 cho mỗi booking thành công
+              movieBookingCount[movieTitle] = (movieBookingCount[movieTitle] || 0) + 1
+>>>>>>> 8e7877c0f8a1925698a557e2a7c688caf0a6c1d0
           }
         })
 
         // 3. Tạo dữ liệu biểu đồ
         let formatted = Object.entries(movieBookingCount).map(([title, count]) => ({
+<<<<<<< HEAD
           title,
+=======
+          title, 
+>>>>>>> 8e7877c0f8a1925698a557e2a7c688caf0a6c1d0
           count, // Lúc này 'count' là số lượng booking
         }))
 
         // 4. Sắp xếp và lấy Top 10
         formatted = formatted
           .sort((a, b) => b.count - a.count)
+<<<<<<< HEAD
           .slice(0, 10)
+=======
+          .slice(0, 10) 
+>>>>>>> 8e7877c0f8a1925698a557e2a7c688caf0a6c1d0
 
         setChartData(formatted)
       } catch (err) {
@@ -87,6 +103,7 @@ export default function TopMoviesChart() {
   }
 
   if (error || chartData.length === 0) {
+<<<<<<< HEAD
     const message = error ? `Lỗi: ${error}` : "Chưa có dữ liệu booking thành công"
     return (
       <Box bg="#1a1e29" p={6} borderRadius="2xl" h="300px">
@@ -104,6 +121,25 @@ export default function TopMoviesChart() {
       </Box>
     )
   }
+=======
+     const message = error ? `Lỗi: ${error}` : "Chưa có dữ liệu booking thành công"
+     return (
+       <Box bg="#1a1e29" p={6} borderRadius="2xl" h="300px">
+         <Heading as="h3" size="md" mb={4} color="white">
+           Phim được đặt nhiều nhất (Top 10)
+         </Heading>
+         <Box
+           display="flex"
+           justifyContent="center"
+           alignItems="center"
+           h="200px"
+         >
+           <Text color={error ? "red.400" : "gray.400"}>{message}</Text>
+         </Box>
+       </Box>
+     )
+   }
+>>>>>>> 8e7877c0f8a1925698a557e2a7c688caf0a6c1d0
 
   return (
     <Box bg="#1a1e29" p={6} borderRadius="2xl">
@@ -114,6 +150,7 @@ export default function TopMoviesChart() {
         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2c3240" />
           {/* XAxis hiển thị Tên Phim */}
+<<<<<<< HEAD
           <XAxis
             dataKey="title"
             stroke="#ccc"
@@ -125,6 +162,19 @@ export default function TopMoviesChart() {
           {/* YAxis hiển thị Số Lượng Booking (Count) */}
           <YAxis
             stroke="#ccc"
+=======
+          <XAxis 
+            dataKey="title" 
+            stroke="#ccc" 
+            angle={-15} 
+            textAnchor="end" 
+            height={50}
+            interval={0} // Hiển thị tất cả nhãn
+          /> 
+          {/* YAxis hiển thị Số Lượng Booking (Count) */}
+          <YAxis 
+            stroke="#ccc" 
+>>>>>>> 8e7877c0f8a1925698a557e2a7c688caf0a6c1d0
             label={{ value: 'Số lượng booking', angle: -90, position: 'insideLeft', fill: '#ccc' }}
             tickFormatter={(value) => Math.floor(value)}
             allowDecimals={false}

@@ -25,7 +25,6 @@ import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 import AllMoviesPage from "./pages/AllMoviesPage";
 import HomePage from "./pages/HomePage";
 import MovieDetail from "./pages/MovieDetail";
-// import MovieManagementPage from "./pages/admin/MovieManagementPage";
 // ===== END [NGUOI 2] =====
 
 // ===== [NGUOI 3] Theater Pages =====
@@ -36,15 +35,15 @@ import TheaterListPage from "./pages/theaters/TheaterListPage";
 // ===== END [NGUOI 3] =====
 
 // ===== [NGUOI 4] Booking & Payment Pages =====
-import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
-import SeatSelection from "./pages/bookings/SeatSelection";
-import CartPage from "./pages/bookings/CartCheckoutPage";
-import PaymentSuccessPage from "./pages/bookings/PaymentSuccessPage";
-import PaymentFailedPage from "./pages/bookings/PaymentFailedPage";
-import TicketHistoryPage from "./pages/bookings/TicketHistoryPage";
-import TicketDetailPage from "./pages/bookings/TicketDetailPage";
-import ETicketPage from "./pages/bookings/ETicketPage";
 import BookingCancelledPage from "./pages/bookings/BookingCancelledPage";
+import CartPage from "./pages/bookings/CartCheckoutPage";
+import ETicketPage from "./pages/bookings/ETicketPage";
+import PaymentFailedPage from "./pages/bookings/PaymentFailedPage";
+import PaymentSuccessPage from "./pages/bookings/PaymentSuccessPage";
+import SeatSelection from "./pages/bookings/SeatSelection";
+import ShowtimeSelection from "./pages/bookings/ShowtimeSelection";
+import TicketDetailPage from "./pages/bookings/TicketDetailPage";
+import TicketHistoryPage from "./pages/bookings/TicketHistoryPage";
 // ===== END [NGUOI 4] =====
 
 // ===== [NGUOI 5] Admin, Staff & Showtime Pages =====
