@@ -80,7 +80,7 @@ export const createBooking = async (req, res) => {
         await BookingSeat.insertMany(bookingSeats, { session });
 
         await session.commitTransaction();
-        
+
         // Nếu thanh toán bằng tiền mặt, gửi email xác nhận ngay
         if (payment_method === 'cash') {
             try {
@@ -90,7 +90,7 @@ export const createBooking = async (req, res) => {
                         path: 'showtime_id',
                         populate: [
                             { path: 'movie_id' },
-                            { 
+                            {
                                 path: 'room_id',
                                 populate: { path: 'theater_id' }
                             }
@@ -117,7 +117,7 @@ export const createBooking = async (req, res) => {
                 console.error('Failed to send booking confirmation email:', emailError);
             }
         }
-        
+
         res.status(201).json({ message: "Tạo đặt vé thành công", booking: savedBooking });
     } catch (error) {
         await session.abortTransaction();
@@ -135,7 +135,7 @@ export const getMyBookings = async (req, res) => {
                 path: 'showtime_id',
                 populate: [
                     { path: 'movie_id' },
-                    { 
+                    {
                         path: 'room_id',
                         populate: {
                             path: 'theater_id'
@@ -264,7 +264,7 @@ export const getBookingDetails = async (req, res) => {
                 path: 'showtime_id',
                 populate: [
                     { path: 'movie_id' },
-                    { 
+                    {
                         path: 'room_id',
                         populate: {
                             path: 'theater_id'
@@ -283,7 +283,7 @@ export const getBookingDetails = async (req, res) => {
 
         // Kiểm tra quyền xem đặt vé
         if (booking.user_id._id.toString() !== req.user._id.toString() && req.user.role === 'customer') {
-             return res.status(403).json({ message: "Bạn không có quyền xem đặt vé này" });
+            return res.status(403).json({ message: "Bạn không có quyền xem đặt vé này" });
         }
 
         const bookingSeats = await BookingSeat.find({ booking_id: req.params.id }).populate('seat_id');
@@ -440,7 +440,7 @@ export const getBookingsByUserId = async (req, res) => {
                 path: 'showtime_id',
                 populate: [
                     { path: 'movie_id' },
-                    { 
+                    {
                         path: 'room_id',
                         populate: {
                             path: 'theater_id'

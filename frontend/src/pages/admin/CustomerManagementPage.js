@@ -33,7 +33,7 @@ export default function CustomerManagementPage() {
     if (!isAuthorized) return;
 
     const token = localStorage.getItem("token")
-    
+
     const fetchAllUsers = async () => {
       try {
         const res = await fetch("http://localhost:5000/users", {
@@ -44,20 +44,20 @@ export default function CustomerManagementPage() {
           },
           body: JSON.stringify({
             page: 1,
-            pageSize: 100 
+            pageSize: 100
           })
         })
-        
+
         if (!res.ok) throw new Error("Network response was not ok")
-        
+
         const data = await res.json()
-        
+
         // Sử dụng hàm determineStatus để xác định trạng thái chính xác
         const usersWithStatus = (data.list || []).map(user => ({
           ...user,
           status: determineStatus(user)
         }))
-        
+
         setUsers(usersWithStatus)
       } catch (err) {
         setError(err.message)
@@ -65,7 +65,7 @@ export default function CustomerManagementPage() {
         setLoading(false)
       }
     }
-    
+
     fetchAllUsers()
   }, [isAuthorized])
 
@@ -98,7 +98,7 @@ export default function CustomerManagementPage() {
 
   const handleToggleStatus = async (user, newStatus) => {
     const token = localStorage.getItem("token")
-    
+
     try {
       const res = await fetch(`http://localhost:5000/users/${user.id}/status`, {
         method: "PATCH",
@@ -110,29 +110,29 @@ export default function CustomerManagementPage() {
           status: newStatus
         })
       })
-      
+
       const data = await res.json()
-      
+
       if (!res.ok) throw new Error(data.message || "Cập nhật trạng thái thất bại")
-      
+
       // Cập nhật state với dữ liệu từ API response
       setUsers(users =>
         users.map(u =>
-          u.id === user.id 
-            ? { 
-                ...u,
-                ...data.data, // Lấy toàn bộ dữ liệu updated từ API
-                status: determineStatus(data.data) // Tính toán lại status
-              } 
+          u.id === user.id
+            ? {
+              ...u,
+              ...data.data, // Lấy toàn bộ dữ liệu updated từ API
+              status: determineStatus(data.data) // Tính toán lại status
+            }
             : u
         )
       )
-      
+
       const statusText = {
         active: "kích hoạt",
         locked: "khóa"
       }
-      
+
       toast({
         title: "Thành công",
         description: `Đã ${statusText[newStatus]} tài khoản thành công`,
@@ -179,7 +179,7 @@ export default function CustomerManagementPage() {
 
   return (
     <Flex flex="1" bg="#0f1117" color="white">
-      <Sidebar/>
+      <Sidebar />
       <Box flex="1" p={6}>
         <Box mb={4}>
           <Flex gap={4}>
@@ -202,9 +202,9 @@ export default function CustomerManagementPage() {
               border="1px solid #23242a"
               _focus={{ bg: "#23242a" }}
             >
-              <option value="all" style={{background:'#181a20', color:'#fff'}}>Tất cả trạng thái</option>
-              <option value="active" style={{background:'#181a20', color:'#fff'}}>Hoạt động</option>
-              <option value="locked" style={{background:'#181a20', color:'#fff'}}>Khóa</option>
+              <option value="all" style={{ background: '#181a20', color: '#fff' }}>Tất cả trạng thái</option>
+              <option value="active" style={{ background: '#181a20', color: '#fff' }}>Hoạt động</option>
+              <option value="locked" style={{ background: '#181a20', color: '#fff' }}>Khóa</option>
             </Select>
           </Flex>
         </Box>
@@ -213,7 +213,7 @@ export default function CustomerManagementPage() {
           onViewInfo={handleViewInfo}
           onToggleStatus={handleToggleStatus}
         />
-        
+
         {totalPages > 1 && (
           <Flex justify="space-between" align="center" mt={6}>
             <Text color="gray.400" fontSize="sm">
@@ -231,7 +231,7 @@ export default function CustomerManagementPage() {
               >
                 Trước
               </Button>
-              
+
               {[...Array(totalPages)].map((_, index) => {
                 const page = index + 1
                 if (
@@ -259,7 +259,7 @@ export default function CustomerManagementPage() {
                 }
                 return null
               })}
-              
+
               <Button
                 size="sm"
                 onClick={() => handlePageChange(currentPage + 1)}

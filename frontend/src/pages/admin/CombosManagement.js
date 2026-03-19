@@ -46,7 +46,7 @@ const CombosManagement = () => {
   const [itemsPerPage] = useState(10);
   const [selectedCombo, setSelectedCombo] = useState(null);
   const toast = useToast();
-  
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure();
   const { isOpen: isStatusOpen, onOpen: onStatusOpen, onClose: onStatusClose } = useDisclosure();
@@ -68,12 +68,12 @@ const CombosManagement = () => {
       roleData = { role: directRole };
     }
   }
-  
+
   const role = roleData?.role || "";
-  
+
   // Xác định role và quyền hạn
   let isAdmin = false;
-  
+
   if (role.toLowerCase() === "admin") {
     isAdmin = true;
   } else if (role.toLowerCase() === "lv2") {
@@ -88,7 +88,7 @@ const CombosManagement = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      
+
       const response = await fetch("http://localhost:5000/api/combos/all", {
         headers: {
           "Content-Type": "application/json",
@@ -102,7 +102,7 @@ const CombosManagement = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.data && Array.isArray(data.data)) {
         setCombos(data.data);
       } else if (Array.isArray(data)) {
@@ -161,7 +161,7 @@ const CombosManagement = () => {
     try {
       const token = localStorage.getItem("token");
       const newStatus = selectedCombo.status === "active" ? "inactive" : "active";
-      
+
       const response = await fetch(`http://localhost:5000/api/combos/${selectedCombo._id}/status`, {
         method: "PATCH",
         headers: {
@@ -287,34 +287,34 @@ const CombosManagement = () => {
 
   const formatPrice = (price) => {
     if (!price) return "0đ";
-    const numericPrice = typeof price === 'object' && price.$numberDecimal 
-      ? parseFloat(price.$numberDecimal) 
+    const numericPrice = typeof price === 'object' && price.$numberDecimal
+      ? parseFloat(price.$numberDecimal)
       : parseFloat(price);
-    
+
     if (isNaN(numericPrice)) return "0đ";
     return Math.round(numericPrice).toLocaleString("vi-VN") + "đ";
   };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "Invalid Date";
-    
+
     // Nếu dateStr là object với vietnamFormatted (format: "13:57:57 13/11/2025")
     if (typeof dateStr === 'object' && dateStr.vietnamFormatted) {
       // Tách lấy phần ngày (bỏ phần giờ)
       const parts = dateStr.vietnamFormatted.split(' ');
       return parts.length > 1 ? parts[1] : dateStr.vietnamFormatted;
     }
-    
+
     // Nếu dateStr là object với vietnam hoặc utc
     const dateValue = (typeof dateStr === 'object' && (dateStr.vietnam || dateStr.utc)) || dateStr;
-    
+
     const date = new Date(dateValue);
     if (isNaN(date.getTime())) return "Invalid Date";
-    
+
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    
+
     return `${day}/${month}/${year}`;
   };
 
@@ -676,8 +676,8 @@ const CombosManagement = () => {
               )}
               <Flex gap={3} justify="flex-end" mt={6}>
                 <Button onClick={onStatusClose} bg="gray.700">Hủy</Button>
-                <Button 
-                  colorScheme={selectedCombo?.status === "active" ? "red" : "green"} 
+                <Button
+                  colorScheme={selectedCombo?.status === "active" ? "red" : "green"}
                   onClick={handleUpdateStatus}
                 >
                   {selectedCombo?.status === "active" ? "Vô hiệu hóa" : "Kích hoạt"}

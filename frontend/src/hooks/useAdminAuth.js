@@ -1,6 +1,6 @@
-import { useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
 
 /**
  * Hook để bảo vệ các trang admin
@@ -14,7 +14,7 @@ export const useAdminAuth = () => {
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem("token") || localStorage.getItem("accessToken");
-
+      
       if (!token) {
         toast({
           title: "Yêu cầu đăng nhập",
@@ -29,10 +29,10 @@ export const useAdminAuth = () => {
 
       // Lấy role từ nhiều nguồn
       let role = "";
-
+      
       // Thử lấy từ userRole
       role = (localStorage.getItem("userRole") || "").toLowerCase();
-
+      
       // Nếu không có, thử lấy từ role object
       if (!role) {
         try {
@@ -42,7 +42,7 @@ export const useAdminAuth = () => {
           // Ignore
         }
       }
-
+      
       // Nếu vẫn không có, thử lấy từ staff object
       if (!role) {
         try {
@@ -62,7 +62,7 @@ export const useAdminAuth = () => {
           duration: 3000,
           isClosable: true,
         });
-
+        
         // Nếu là staff, redirect về trang staff tương ứng
         if (role === "lv1") {
           navigate("/staff/l1", { replace: true });

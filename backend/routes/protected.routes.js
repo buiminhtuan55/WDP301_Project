@@ -1,36 +1,35 @@
 import { Router } from "express";
+import { verifyToken, requireAdmin, requireStaff, requireCustomer } from "../middlewares/auth.js";
 import { updateUserRole } from "../controllers/auth.controller.js";
 import {
   createMovie,
-  deleteMovie,
-  getAllMoviesForStaff,
   updateMovie,
-  updateMovieStatus
-} from "../controllers/movie.controller.js";
-import { requireAdmin, requireCustomer, requireStaff, verifyToken } from "../middlewares/auth.js";
-import {
+  deleteMovie,
+  updateMovieStatus,
+  getAllMoviesForStaff
+} from "../controllers/movie.controller.js"; import {
   validateCreateMovie,
-  validateStatusUpdate,
-  validateUpdateMovie
+  validateUpdateMovie,
+  validateStatusUpdate
 } from "../middlewares/movieValidation.js";
-// import bookingRoutes from './booking.routes.js';
-// import auditLogRoutes from './auditLog.routes.js';
-// import comboRoutes from './combo.routes.js';
-// import reviewRoutes from './review.routes.js'; // Import review routes
+import bookingRoutes from './booking.routes.js';
+import auditLogRoutes from './auditLog.routes.js';
+import reviewRoutes from './review.routes.js'; // Import review routes
+import comboRoutes from './combo.routes.js';
 
 const router = Router();
 
 // Booking routes
-// router.use('/bookings', bookingRoutes);
+router.use('/bookings', bookingRoutes);
 
 // Review routes
-// router.use('/reviews', reviewRoutes);
+router.use('/reviews', reviewRoutes);
 
 // Combo routes
-// router.use('/combos', comboRoutes);
+router.use('/combos', comboRoutes);
 
 // Audit Log routes (Admin only)
-// router.use('/audit-logs', auditLogRoutes);
+router.use('/audit-logs', auditLogRoutes);
 
 // Route lấy thông tin profile (cần đăng nhập)
 router.get("/profile", verifyToken, (req, res) => {

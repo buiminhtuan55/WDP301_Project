@@ -1,21 +1,22 @@
 import payos from "../utils/payos.js";
 import Booking from "../models/booking.js";
 import BookingSeat from "../models/bookingSeat.js";
-import Showtime from "../models/showtime.js";
-import User from "../models/user.js";
-import Movie from "../models/movie.js";
-import Room from "../models/room.js";
-import Theater from "../models/theater.js";
-import Seat from "../models/seat.js";
-import { sendBookingConfirmationEmail } from "../utils/email.js";
+import Showtime from '../models/showtime.js'; // Import Showtime model
+import User from '../models/user.js'; // Import User model for population
+import Movie from '../models/movie.js'; // Import Movie model for population
+import Room from '../models/room.js'; // Import Room model for population
+import Theater from '../models/theater.js'; // Import Theater model
+import Seat from '../models/seat.js'; // Import Seat model
+import { sendBookingConfirmationEmail } from '../utils/email.js';
 
 // Helper function to update booking status and handle seat release
 const updateBookingStatusAndSeats = async (booking, newStatus, newPaymentStatus, paidAmount = 0, session = null) => {
+  // Prevent re-processing if already in a final state (confirmed/cancelled) and no effective change is needed
   const isStatusChanged = booking.status !== newStatus || booking.payment_status !== newPaymentStatus;
   const isPaidAmountChanged = paidAmount > 0 && parseFloat(booking.paid_amount?.toString()) !== paidAmount;
 
   if (!isStatusChanged && !isPaidAmountChanged) {
-    return booking;
+    return booking; // No effective change needed
   }
 
   booking.status = newStatus;
@@ -24,7 +25,8 @@ const updateBookingStatusAndSeats = async (booking, newStatus, newPaymentStatus,
     booking.paid_amount = paidAmount;
   }
 
-  if (newStatus === "cancelled" || newStatus === "failed") {
+  // If status is cancelled or failed, release seats
+  if (newStatus === 'cancelled' || newStatus === 'failed') {
     const bookingSeats = await BookingSeat.find({ booking_id: booking._id }).session(session);
     const seatIdsToRelease = bookingSeats.map(bs => bs.seat_id);
 
@@ -45,46 +47,64 @@ const updateBookingStatusAndSeats = async (booking, newStatus, newPaymentStatus,
 export const createPaymentLink = async (req, res, next) => {
   try {
     const { bookingId } = req.body;
-
+    
     if (!bookingId) {
-      return res.status(400).json({ message: "Booking ID la bat buoc" });
+      return res.status(400).json({
+        message: "Booking ID là bắt buộc"
+      });
     }
 
+    // Lấy thông tin booking từ database
     const booking = await Booking.findById(bookingId);
     if (!booking) {
-      return res.status(404).json({ message: "Khong tim thay booking" });
+      return res.status(404).json({
+        message: "Không tìm thấy booking"
+      });
     }
 
+    // Kiểm tra quyền truy cập
     if (booking.user_id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Ban khong co quyen thanh toan cho booking nay" });
+      return res.status(403).json({
+        message: "Bạn không có quyền thanh toán cho booking này"
+      });
     }
 
-    if (booking.status !== "pending") {
-      return res.status(400).json({ message: "Booking khong o trang thai pending" });
+    // Kiểm tra trạng thái booking
+    if (booking.status !== 'pending') {
+      return res.status(400).json({
+        message: "Booking không ở trạng thái pending"
+      });
     }
 
+    // Tạo orderCode từ booking ID
     const orderCode = parseInt(booking._id.toString().slice(-6), 16);
+
+    // Chuyển đổi total_price từ Decimal128 sang number
     const amount = Math.round(parseFloat(booking.total_price.toString()));
 
+    // PayOS limits description length to 25 characters. Ensure we respect that
+    // to avoid API error code 20 (description too long).
     const rawDescription = `${bookingId}`;
     const MAX_DESC_LENGTH = 25;
     const description = rawDescription.length > MAX_DESC_LENGTH
-      ? rawDescription.slice(0, MAX_DESC_LENGTH - 1) + "…"
+      ? rawDescription.slice(0, MAX_DESC_LENGTH - 1) + '…'
       : rawDescription;
 
     const paymentData = {
-      orderCode,
-      amount,
+      orderCode: orderCode,
+      amount: amount,
       description,
       returnUrl: `${process.env.FRONTEND_URL}/payment-success?bookingId=${bookingId}`,
       cancelUrl: `${process.env.FRONTEND_URL}/payment-failed?bookingId=${bookingId}`,
     };
 
+    // Thêm kiểm tra để đảm bảo các biến môi trường PayOS đã được cấu hình
     if (!process.env.PAYOS_CLIENT_ID || !process.env.PAYOS_API_KEY || !process.env.PAYOS_CHECKSUM_KEY) {
       throw new Error("PayOS environment variables are not configured correctly.");
     }
 
-    if (typeof payos.createPaymentLink !== "function") {
+    // Thêm một bước kiểm tra cuối cùng trước khi gọi hàm
+    if (typeof payos.createPaymentLink !== 'function') {
       throw new TypeError("payos.createPaymentLink is not a function. Check SDK initialization in 'utils/payos.js'.");
     }
 
@@ -92,30 +112,35 @@ export const createPaymentLink = async (req, res, next) => {
     try {
       paymentLink = await payos.createPaymentLink(paymentData);
     } catch (err) {
+      // PayOS sometimes returns HTTP 200 with an error object (e.g., code '20').
+      // Normalize that into a 400 for the client with a human message.
       const apiErr = err && err.code ? err : (err && err.error) ? err.error : null;
-      if (apiErr && (apiErr.code === "20" || apiErr.code === 20)) {
-        console.error("PayOS rejected payment creation because description is too long or invalid:", apiErr);
-        return res.status(400).json({ message: "Tao link thanh toan that bai: mo ta qua dai hoac khong hop le." });
+      if (apiErr && (apiErr.code === '20' || apiErr.code === 20)) {
+        console.error('PayOS rejected payment creation because description is too long or invalid:', apiErr);
+        return res.status(400).json({ message: 'Tạo link thanh toán thất bại: mô tả quá dài hoặc không hợp lệ.' });
       }
+      // Re-throw any other errors to be handled by error middleware.
       throw err;
     }
 
+    // Cập nhật booking với order_code và payment_link_id
     await Booking.findByIdAndUpdate(bookingId, {
       order_code: orderCode,
       payment_link_id: paymentLink.paymentLinkId
     });
 
     res.status(200).json({
-      message: "Tao link thanh toan thanh cong",
+      message: "Tạo link thanh toán thành công",
       data: {
         paymentLink: paymentLink.checkoutUrl,
         paymentLinkId: paymentLink.paymentLinkId,
-        orderCode,
-        amount
+        orderCode: orderCode,
+        amount: amount
       },
     });
   } catch (error) {
     console.error("Error creating payment link:", error.message);
+    // Thêm log chi tiết hơn cho lỗi TypeError
     if (error instanceof TypeError) {
       console.error("This is likely an issue with the PayOS SDK initialization in 'utils/payos.js'. Please verify the import and constructor call.");
     }
@@ -123,52 +148,61 @@ export const createPaymentLink = async (req, res, next) => {
   }
 };
 
-export const handlePayosWebhook = async (req, res) => {
+export const handlePayosWebhook = async (req, res, next) => {
   const webhookData = req.body;
   try {
+    // Xác thực dữ liệu từ webhook
+    // Thêm kiểm tra để đảm bảo checksum key đã được cấu hình
     if (!process.env.PAYOS_CHECKSUM_KEY) {
       throw new Error("PayOS CHECKSUM_KEY is not configured.");
     }
 
     const verifiedData = payos.verifyPaymentWebhookData(webhookData);
+
     console.log("Webhook received:", verifiedData);
 
+    // Tìm booking với order_code tương ứng
     const booking = await Booking.findOne({ order_code: verifiedData.orderCode });
-
+    
     if (!booking) {
+      console.log(`Booking not found for order code: ${verifiedData.orderCode}`);
       return res.status(200).json({
         success: true,
         message: "Webhook received but booking not found",
       });
     }
 
-    if (booking.status === "confirmed" || booking.status === "cancelled") {
+    // Tránh xử lý lại webhook đã xử lý
+    if (booking.status === 'confirmed' || booking.status === 'cancelled') {
+      console.log(`Webhook for order ${verifiedData.orderCode} already processed. Status: ${booking.status}`);
       return res.status(200).json({ success: true, message: "Webhook already processed" });
     }
 
     switch (verifiedData.code) {
-      case "00":
-        booking.payment_status = "success";
-        booking.status = "confirmed";
+      case "00": // Thanh toán thành công
+        console.log(`Payment for order ${verifiedData.orderCode} was successful.`);
+        booking.payment_status = 'success';
+        booking.status = 'confirmed';
         booking.paid_amount = verifiedData.amount;
         await booking.save();
-
+        
+        // Gửi email xác nhận cho khách hàng
         try {
           const populatedBooking = await Booking.findById(booking._id)
-            .populate("user_id", "username email")
+            .populate('user_id', 'username email')
             .populate({
-              path: "showtime_id",
+              path: 'showtime_id',
               populate: [
-                { path: "movie_id" },
-                {
-                  path: "room_id",
-                  populate: { path: "theater_id" }
+                { path: 'movie_id' },
+                { 
+                  path: 'room_id',
+                  populate: { path: 'theater_id' }
                 }
               ]
             });
 
           const bookingSeats = await BookingSeat.find({ booking_id: booking._id })
-            .populate("seat_id");
+            .populate('seat_id');
 
           await sendBookingConfirmationEmail({
             email: populatedBooking.user_id.email,
@@ -184,25 +218,33 @@ export const handlePayosWebhook = async (req, res) => {
             orderCode: populatedBooking.order_code || null
           });
         } catch (emailError) {
-          console.error("Failed to send booking confirmation email:", emailError);
+          console.error('Failed to send booking confirmation email:', emailError);
         }
         break;
 
-      case "24":
-      case "07":
-      default:
-        if (booking.status === "pending") {
-          await updateBookingStatusAndSeats(booking, "cancelled", "failed", 0, null);
+      case "24": // Bị hủy
+      case "07": // Thất bại
+      default: // Các trường hợp thất bại khác
+        console.log(`Payment for order ${verifiedData.orderCode} failed or was cancelled. Code: ${verifiedData.code}`);
+        
+        // Chỉ cập nhật nếu booking đang ở trạng thái pending
+        if (booking.status === 'pending') {
+          // Sử dụng helper function để cập nhật status và giải phóng ghế
+          await updateBookingStatusAndSeats(booking, 'cancelled', 'failed', 0, null);
+          console.log(`Booking ${booking._id} has been cancelled and seats released.`);
         }
+        // TODO: Gửi email thông báo thất bại
         break;
     }
 
+    // Phản hồi 200 OK để PayOS biết bạn đã nhận được webhook
     return res.status(200).json({
       success: true,
       message: "Webhook received successfully",
     });
   } catch (error) {
     console.error("Webhook verification failed:", error);
+    // Nếu xác thực thất bại, không xử lý và trả lỗi
     return res.status(400).json({
       success: false,
       message: "Webhook verification failed",
@@ -214,94 +256,108 @@ export const checkPaymentStatus = async (req, res, next) => {
   try {
     const { paymentLinkId } = req.params;
     if (!paymentLinkId) {
-      return res.status(400).json({ message: "Can cung cap paymentLinkId." });
+      return res.status(400).json({ message: "Cần cung cấp paymentLinkId." });
     }
 
+    // Gọi API của PayOS để lấy thông tin đơn hàng
     const paymentInfo = await payos.getPaymentLinkInformation(paymentLinkId);
 
     if (!paymentInfo) {
-      return res.status(404).json({ message: "Khong tim thay thong tin thanh toan." });
+      return res.status(404).json({ message: "Không tìm thấy thông tin thanh toán." });
     }
 
-    res.status(200).json({ message: "Lay thong tin thanh cong", data: paymentInfo });
+    res.status(200).json({ message: "Lấy thông tin thành công", data: paymentInfo });
   } catch (error) {
     console.error("Error checking payment status:", error);
     next(error);
   }
 };
 
+// Kiểm tra trạng thái thanh toán theo booking ID
 export const checkBookingPaymentStatus = async (req, res, next) => {
   try {
     const { bookingId } = req.params;
-
+    
     if (!bookingId) {
-      return res.status(400).json({ message: "Can cung cap bookingId." });
+      return res.status(400).json({ message: "Cần cung cấp bookingId." });
     }
 
+    // Tìm booking
     const booking = await Booking.findById(bookingId);
     if (!booking) {
-      return res.status(404).json({ message: "Khong tim thay booking." });
+      return res.status(404).json({ message: "Không tìm thấy booking." });
     }
 
+    // Kiểm tra quyền truy cập: cho phép user xem booking của mình, hoặc staff/admin xem bất kỳ booking nào
     const isOwner = booking.user_id.toString() === req.user._id.toString();
-    const isStaffOrAdmin = req.user.role === "lv1" || req.user.role === "lv2" || req.user.role === "admin";
-
+    const isStaffOrAdmin = req.user.role === 'lv1' || req.user.role === 'lv2' || req.user.role === 'admin';
+    
     if (!isOwner && !isStaffOrAdmin) {
-      return res.status(403).json({ message: "Ban khong co quyen xem booking nay." });
+      return res.status(403).json({ message: "Bạn không có quyền xem booking này." });
     }
 
+    // Nếu có payment_link_id, kiểm tra trạng thái từ PayOS
     let paymentInfo = null;
     if (booking.payment_link_id) {
       try {
         paymentInfo = await payos.getPaymentLinkInformation(booking.payment_link_id);
 
-        if (booking.status === "pending") {
-          if (paymentInfo.status === "PAID") {
-            await updateBookingStatusAndSeats(booking, "confirmed", "success", paymentInfo.amountPaid, null);
+        // --- Reconciliation Logic ---
+        // Only reconcile if the booking is still pending in our system
+        if (booking.status === 'pending') {
+            if (paymentInfo.status === 'PAID') {
+                console.log(`Reconciling booking ${bookingId}: PayOS status is PAID, DB status is PENDING. Updating to CONFIRMED.`);
+                // Use the helper to update status and paid amount. Pass null for session.
+                await updateBookingStatusAndSeats(booking, 'confirmed', 'success', paymentInfo.amountPaid, null);
+                
+                // Gửi email xác nhận
+                try {
+                  const populatedBooking = await Booking.findById(booking._id)
+                    .populate('user_id', 'username email')
+                    .populate({
+                      path: 'showtime_id',
+                      populate: [
+                        { path: 'movie_id' },
+                        { 
+                          path: 'room_id',
+                          populate: { path: 'theater_id' }
+                        }
+                      ]
+                    });
 
-            try {
-              const populatedBooking = await Booking.findById(booking._id)
-                .populate("user_id", "username email")
-                .populate({
-                  path: "showtime_id",
-                  populate: [
-                    { path: "movie_id" },
-                    {
-                      path: "room_id",
-                      populate: { path: "theater_id" }
-                    }
-                  ]
-                });
+                  const bookingSeats = await BookingSeat.find({ booking_id: booking._id })
+                    .populate('seat_id');
 
-              const bookingSeats = await BookingSeat.find({ booking_id: booking._id })
-                .populate("seat_id");
-
-              await sendBookingConfirmationEmail({
-                email: populatedBooking.user_id.email,
-                userName: populatedBooking.user_id.username,
-                bookingId: populatedBooking._id.toString(),
-                movieTitle: populatedBooking.showtime_id.movie_id.title,
-                theaterName: populatedBooking.showtime_id.room_id.theater_id.name,
-                roomName: populatedBooking.showtime_id.room_id.name,
-                showtime: populatedBooking.showtime_id.start_time,
-                seats: bookingSeats.map(bs => ({ seat_number: bs.seat_id.seat_number })),
-                totalPrice: parseFloat(populatedBooking.total_price.toString()),
-                paymentMethod: populatedBooking.payment_method
-              });
-            } catch (emailError) {
-              console.error("Failed to send booking confirmation email:", emailError);
+                  await sendBookingConfirmationEmail({
+                    email: populatedBooking.user_id.email,
+                    userName: populatedBooking.user_id.username,
+                    bookingId: populatedBooking._id.toString(),
+                    movieTitle: populatedBooking.showtime_id.movie_id.title,
+                    theaterName: populatedBooking.showtime_id.room_id.theater_id.name,
+                    roomName: populatedBooking.showtime_id.room_id.name,
+                    showtime: populatedBooking.showtime_id.start_time,
+                    seats: bookingSeats.map(bs => ({ seat_number: bs.seat_id.seat_number })),
+                    totalPrice: parseFloat(populatedBooking.total_price.toString()),
+                    paymentMethod: populatedBooking.payment_method
+                  });
+                } catch (emailError) {
+                  console.error('Failed to send booking confirmation email:', emailError);
+                }
+            } else if (paymentInfo.status === 'CANCELLED' || paymentInfo.status === 'FAILED') {
+                console.log(`Reconciling booking ${bookingId}: PayOS status is ${paymentInfo.status}, DB status is PENDING. Updating to CANCELLED/FAILED.`);
+                // Use the helper to update status and release seats. Pass null for session.
+                await updateBookingStatusAndSeats(booking, 'cancelled', 'failed', 0, null);
             }
-          } else if (paymentInfo.status === "CANCELLED" || paymentInfo.status === "FAILED") {
-            await updateBookingStatusAndSeats(booking, "cancelled", "failed", 0, null);
-          }
         }
+        // --- End Reconciliation Logic ---
+
       } catch (error) {
         console.error("Error getting payment info from PayOS:", error);
       }
     }
 
     res.status(200).json({
-      message: "Lay thong tin thanh cong",
+      message: "Lấy thông tin thành công",
       data: {
         booking: {
           _id: booking._id,
@@ -313,7 +369,7 @@ export const checkBookingPaymentStatus = async (req, res, next) => {
           order_code: booking.order_code,
           payment_link_id: booking.payment_link_id
         },
-        paymentInfo
+        paymentInfo: paymentInfo
       }
     });
   } catch (error) {

@@ -12,11 +12,11 @@ export const getAllTheaters = async (req, res, next) => {
     // Validation
     const pageNum = parseInt(page);
     const limit = parseInt(pageSize);
-    
+
     if (pageNum < 1) {
       return res.status(400).json({ message: "Page phải là số nguyên dương" });
     }
-    
+
     if (limit < 1 || limit > 100) {
       return res.status(400).json({ message: "PageSize phải từ 1 đến 100" });
     }
@@ -25,7 +25,7 @@ export const getAllTheaters = async (req, res, next) => {
 
     // Build filter
     const filter = {};
-    
+
     // Filter by status
     if (status && status.trim() !== '') {
       filter.status = status;
@@ -34,7 +34,7 @@ export const getAllTheaters = async (req, res, next) => {
     // Apply additional filterCriterias
     filterCriterias.forEach(criteria => {
       const { field, operator, value } = criteria;
-      
+
       switch (operator) {
         case 'equals':
           filter[field] = value;
@@ -155,9 +155,9 @@ export const getTheaterById = async (req, res, next) => {
     const { id } = req.params;
 
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "ID rạp không hợp lệ" 
+        message: "ID rạp không hợp lệ"
       });
     }
 
@@ -196,9 +196,9 @@ export const getTheaterById = async (req, res, next) => {
     ]);
 
     if (!theater || theater.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Không tìm thấy rạp" 
+        message: "Không tìm thấy rạp"
       });
     }
 
@@ -219,21 +219,21 @@ export const createTheater = async (req, res, next) => {
 
     // Validation
     if (!name || !location) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Tên rạp và địa điểm là bắt buộc" 
+        message: "Tên rạp và địa điểm là bắt buộc"
       });
     }
 
     // Kiểm tra tên rạp đã tồn tại chưa
-    const existingTheater = await Theater.findOne({ 
-      name: { $regex: new RegExp(`^${name}$`, 'i') } 
+    const existingTheater = await Theater.findOne({
+      name: { $regex: new RegExp(`^${name}$`, 'i') }
     });
 
     if (existingTheater) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Tên rạp đã tồn tại" 
+        message: "Tên rạp đã tồn tại"
       });
     }
 
@@ -328,26 +328,26 @@ export const deleteTheater = async (req, res, next) => {
     const { id } = req.params;
 
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "ID rạp không hợp lệ" 
+        message: "ID rạp không hợp lệ"
       });
     }
 
     const theater = await Theater.findById(id);
     if (!theater) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Không tìm thấy rạp" 
+        message: "Không tìm thấy rạp"
       });
     }
 
     // Kiểm tra rạp có phòng chiếu không
     const roomsCount = await Room.countDocuments({ theater_id: id });
     if (roomsCount > 0) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Không thể xóa rạp có phòng chiếu. Vui lòng xóa tất cả phòng chiếu trước" 
+        message: "Không thể xóa rạp có phòng chiếu. Vui lòng xóa tất cả phòng chiếu trước"
       });
     }
 
@@ -373,24 +373,24 @@ export const updateTheaterStatus = async (req, res, next) => {
     const { status } = req.body;
 
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "ID rạp không hợp lệ" 
+        message: "ID rạp không hợp lệ"
       });
     }
 
     if (!status || !['active', 'inactive'].includes(status)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Trạng thái phải là 'active' hoặc 'inactive'" 
+        message: "Trạng thái phải là 'active' hoặc 'inactive'"
       });
     }
 
     const theater = await Theater.findById(id);
     if (!theater) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Không tìm thấy rạp" 
+        message: "Không tìm thấy rạp"
       });
     }
 
@@ -419,17 +419,17 @@ export const getTheaterStats = async (req, res, next) => {
     const { id } = req.params;
 
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "ID rạp không hợp lệ" 
+        message: "ID rạp không hợp lệ"
       });
     }
 
     const theater = await Theater.findById(id);
     if (!theater) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Không tìm thấy rạp" 
+        message: "Không tìm thấy rạp"
       });
     }
 

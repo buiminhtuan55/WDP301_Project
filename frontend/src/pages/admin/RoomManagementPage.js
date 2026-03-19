@@ -53,7 +53,7 @@ const RoomsManagement = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isDetailOpen, onOpen: onDetailOpen, onClose: onDetailClose } = useDisclosure();
   const { isOpen: isStatusOpen, onOpen: onStatusOpen, onClose: onStatusClose } = useDisclosure();
@@ -92,14 +92,14 @@ const RoomsManagement = () => {
         const row = String.fromCharCode(r);
         if (!map[row]) {
           map[row] = new Array(Math.max(per, maxPerRow)).fill(null).map((_, i) => ({
-            seat_number: `${row}${i+1}`,
+            seat_number: `${row}${i + 1}`,
             type: "normal",
             base_price: 0,
           }));
         }
         for (let i = 0; i < per; i++) {
           map[row][i] = {
-            seat_number: `${row}${i+1}`,
+            seat_number: `${row}${i + 1}`,
             type,
             base_price: Math.floor(price),
           };
@@ -195,15 +195,15 @@ const RoomsManagement = () => {
 
       const data = await response.json();
       console.log("Theaters API response:", data);
-      
+
       const list = data?.list || data?.data?.list || (Array.isArray(data) ? data : []);
       console.log("Parsed theaters list:", list);
-      
+
       if (!Array.isArray(list)) {
         console.error("Invalid theaters list format:", list);
         throw new Error("Định dạng dữ liệu không hợp lệ");
       }
-      
+
       if (list.length === 0) {
         console.warn("No theaters found");
         toast({
@@ -214,7 +214,7 @@ const RoomsManagement = () => {
           isClosable: true,
         });
       }
-      
+
       setTheaters(list);
     } catch (err) {
       console.error("Fetch theaters error:", err);
@@ -233,7 +233,7 @@ const RoomsManagement = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      
+
       const payload = {
         page: 1,
         pageSize: 100,
@@ -280,9 +280,9 @@ const RoomsManagement = () => {
   const handleAddRoom = () => {
     setSelectedRoom(null);
     const theaterIdFromUrl = searchParams.get("theater");
-    setFormData({ 
-      theater_id: theaterIdFromUrl || "", 
-      name: "" 
+    setFormData({
+      theater_id: theaterIdFromUrl || "",
+      name: ""
     });
     onOpen();
   };
@@ -360,13 +360,13 @@ const RoomsManagement = () => {
       if (!formData.name?.trim()) {
         throw new Error("Vui lòng nhập tên phòng");
       }
-      
+
       if (!selectedRoom && !formData.theater_id) {
         throw new Error("Vui lòng chọn rạp");
       }
 
       let response;
-      
+
       if (selectedRoom) {
         const roomId = getId(selectedRoom);
         if (!roomId) throw new Error("Room ID không hợp lệ");
@@ -385,7 +385,7 @@ const RoomsManagement = () => {
         });
       } else {
         const theaterId = formData.theater_id?.trim();
-        
+
         if (!theaterId) {
           throw new Error("Vui lòng chọn rạp");
         }
@@ -427,7 +427,7 @@ const RoomsManagement = () => {
       onClose();
       const theaterIdFromUrl = searchParams.get("theater");
       fetchRooms(theaterIdFromUrl);
-      
+
     } catch (err) {
       console.error("Submit room error:", err);
       toast({
@@ -444,7 +444,7 @@ const RoomsManagement = () => {
     try {
       const token = localStorage.getItem("token");
       const roomId = String(getId(selectedRoom || "") || "").trim();
-      
+
       if (!roomId) {
         toast({
           title: "Lỗi",
@@ -458,7 +458,7 @@ const RoomsManagement = () => {
 
       // Lấy danh sách ghế từ ma trận
       const seats = flattenMatrixToSeats(seatMatrix);
-      
+
       if (!Array.isArray(seats) || seats.length === 0) {
         throw new Error("Không có ghế để tạo");
       }
@@ -636,7 +636,7 @@ const RoomsManagement = () => {
             border="1px solid #23242a"
           >
             <option value="all" style={{ background: "#181a20", color: "#fff" }}>Tất cả trạng thái</option>
-            <option value="active"style={{ background: "#181a20", color: "#fff" }}>Hoạt động</option>
+            <option value="active" style={{ background: "#181a20", color: "#fff" }}>Hoạt động</option>
             <option value="inactive" style={{ background: "#181a20", color: "#fff" }}>Không hoạt động</option>
           </Select>
           <Select
@@ -734,9 +734,9 @@ const RoomsManagement = () => {
                             onClick={() => handleStatusConfirm(room)}
                             title={room.status === "active" ? "Vô hiệu hóa" : "Kích hoạt"}
                           />
-                          <Button 
-                            size="sm" 
-                            colorScheme="orange" 
+                          <Button
+                            size="sm"
+                            colorScheme="orange"
                             onClick={() => openSeatModal(room)}
                           >
                             Thêm ghế
@@ -817,7 +817,7 @@ const RoomsManagement = () => {
                       placeholder="Chọn rạp"
                       value={formData.theater_id}
                       onChange={(e) => {
-                        setFormData({ 
+                        setFormData({
                           ...formData,
                           theater_id: e.target.value
                         });
@@ -835,7 +835,7 @@ const RoomsManagement = () => {
                           .map((theater) => {
                             const theaterId = getId(theater);
                             return (
-                              <option 
+                              <option
                                 key={theaterId}
                                 value={theaterId}
                                 style={{ background: "#181a20", color: "#fff" }}
@@ -918,7 +918,7 @@ const RoomsManagement = () => {
                     <Box bg="gray.800" p={4} borderRadius="md">
                       <Text fontSize="xs" color="gray.400" mb={1}>Tỷ lệ lấp đầy</Text>
                       <Text fontWeight="bold" fontSize="2xl" color="purple.400">
-                        {selectedRoom?.total_seats > 0 
+                        {selectedRoom?.total_seats > 0
                           ? Math.round((selectedRoom?.booked_seats || 0) / selectedRoom.total_seats * 100)
                           : 0}%
                       </Text>
@@ -953,8 +953,8 @@ const RoomsManagement = () => {
               )}
               <Flex gap={3} justify="flex-end" mt={6}>
                 <Button onClick={onStatusClose} bg="gray.700">Hủy</Button>
-                <Button 
-                  colorScheme={selectedRoom?.status === "active" ? "red" : "green"} 
+                <Button
+                  colorScheme={selectedRoom?.status === "active" ? "red" : "green"}
                   onClick={handleUpdateStatus}
                 >
                   {selectedRoom?.status === "active" ? "Vô hiệu hóa" : "Kích hoạt"}
@@ -978,44 +978,44 @@ const RoomsManagement = () => {
                     <HStack spacing={3} flexWrap="wrap">
                       <FormControl maxW="100px">
                         <FormLabel fontSize="sm">Hàng đầu</FormLabel>
-                        <Input 
-                          value={seg.startRow} 
+                        <Input
+                          value={seg.startRow}
                           onChange={(e) => {
-                            const v = e.target.value.toUpperCase().slice(0,1);
-                            setSeatSegments(prev => prev.map((p,i) => i===idx ? { ...p, startRow: v } : p));
-                          }} 
+                            const v = e.target.value.toUpperCase().slice(0, 1);
+                            setSeatSegments(prev => prev.map((p, i) => i === idx ? { ...p, startRow: v } : p));
+                          }}
                           bg="gray.700"
                           size="sm"
                         />
                       </FormControl>
                       <FormControl maxW="100px">
                         <FormLabel fontSize="sm">Hàng cuối</FormLabel>
-                        <Input 
-                          value={seg.endRow} 
+                        <Input
+                          value={seg.endRow}
                           onChange={(e) => {
-                            const v = e.target.value.toUpperCase().slice(0,1);
-                            setSeatSegments(prev => prev.map((p,i) => i===idx ? { ...p, endRow: v } : p));
-                          }} 
+                            const v = e.target.value.toUpperCase().slice(0, 1);
+                            setSeatSegments(prev => prev.map((p, i) => i === idx ? { ...p, endRow: v } : p));
+                          }}
                           bg="gray.700"
                           size="sm"
                         />
                       </FormControl>
                       <FormControl maxW="120px">
                         <FormLabel fontSize="sm">Ghế/hàng</FormLabel>
-                        <Input 
-                          type="number" 
-                          min={1} 
+                        <Input
+                          type="number"
+                          min={1}
                           value={seg.seatsPerRow}
-                          onChange={(e) => setSeatSegments(prev => prev.map((p,i) => i===idx ? { ...p, seatsPerRow: Number(e.target.value) } : p))}
+                          onChange={(e) => setSeatSegments(prev => prev.map((p, i) => i === idx ? { ...p, seatsPerRow: Number(e.target.value) } : p))}
                           bg="gray.700"
                           size="sm"
                         />
                       </FormControl>
                       <FormControl maxW="120px">
                         <FormLabel fontSize="sm">Loại</FormLabel>
-                        <Select 
-                          value={seg.type} 
-                          onChange={(e) => setSeatSegments(prev => prev.map((p,i) => i===idx ? { ...p, type: e.target.value } : p))} 
+                        <Select
+                          value={seg.type}
+                          onChange={(e) => setSeatSegments(prev => prev.map((p, i) => i === idx ? { ...p, type: e.target.value } : p))}
                           bg="gray.700"
                           size="sm"
                         >
@@ -1025,18 +1025,18 @@ const RoomsManagement = () => {
                       </FormControl>
                       <FormControl maxW="140px">
                         <FormLabel fontSize="sm">Giá cơ bản</FormLabel>
-                        <Input 
-                          type="number" 
+                        <Input
+                          type="number"
                           value={seg.base_price}
-                          onChange={(e) => setSeatSegments(prev => prev.map((p,i) => i===idx ? { ...p, base_price: Number(e.target.value) } : p))}
+                          onChange={(e) => setSeatSegments(prev => prev.map((p, i) => i === idx ? { ...p, base_price: Number(e.target.value) } : p))}
                           bg="gray.700"
                           size="sm"
                         />
                       </FormControl>
-                      <Button 
-                        colorScheme="red" 
+                      <Button
+                        colorScheme="red"
                         size="sm"
-                        onClick={() => setSeatSegments(prev => prev.filter((_,i) => i!==idx))}
+                        onClick={() => setSeatSegments(prev => prev.filter((_, i) => i !== idx))}
                       >
                         Xóa
                       </Button>
@@ -1046,23 +1046,23 @@ const RoomsManagement = () => {
 
                 {/* Nút thêm segment */}
                 <HStack spacing={2}>
-                  <Button 
-                    size="sm" 
-                    colorScheme="orange" 
+                  <Button
+                    size="sm"
+                    colorScheme="orange"
                     onClick={() => setSeatSegments(prev => [...prev, { startRow: "A", endRow: "A", seatsPerRow: 8, type: "normal", base_price: 50000 }])}
                   >
                     + Thêm đoạn Thường
                   </Button>
-                  <Button 
-                    size="sm" 
-                    colorScheme="purple" 
+                  <Button
+                    size="sm"
+                    colorScheme="purple"
                     onClick={() => setSeatSegments(prev => [...prev, { startRow: "A", endRow: "A", seatsPerRow: 8, type: "vip", base_price: 80000 }])}
                   >
                     + Thêm đoạn VIP
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={() => setSeatSegments([])}
                   >
                     Reset
@@ -1088,28 +1088,28 @@ const RoomsManagement = () => {
                             {row}
                           </Text>
                           {(seatMatrix[row] || []).map((cell, idx) => {
-  const type = String(cell?.type || "normal").toLowerCase();
-  const bgColor = type === "vip" ? "purple.600" : "gray.700";
-  const borderColor = type === "vip" ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.06)";
-  return (
-    <Box
-      key={`${row}-${idx}`}
-      minW="40px"
-      minH="34px"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      bg={bgColor}
-      color="white"
-      borderRadius="6px"
-      border={`1px solid ${borderColor}`}
-      fontSize="sm"
-      userSelect="none"
-    >
-      {idx + 1}
-    </Box>
-  );
-})}
+                            const type = String(cell?.type || "normal").toLowerCase();
+                            const bgColor = type === "vip" ? "purple.600" : "gray.700";
+                            const borderColor = type === "vip" ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.06)";
+                            return (
+                              <Box
+                                key={`${row}-${idx}`}
+                                minW="40px"
+                                minH="34px"
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                                bg={bgColor}
+                                color="white"
+                                borderRadius="6px"
+                                border={`1px solid ${borderColor}`}
+                                fontSize="sm"
+                                userSelect="none"
+                              >
+                                {idx + 1}
+                              </Box>
+                            );
+                          })}
                         </HStack>
                       ))}
                     </VStack>
@@ -1131,9 +1131,9 @@ const RoomsManagement = () => {
             </ModalBody>
             <ModalFooter>
               <Button onClick={onSeatClose} mr={3}>Hủy</Button>
-              <Button 
-                colorScheme="orange" 
-                onClick={handleCreateSeats} 
+              <Button
+                colorScheme="orange"
+                onClick={handleCreateSeats}
                 isLoading={creatingSeats}
                 isDisabled={flattenMatrixToSeats(seatMatrix).length === 0}
               >
