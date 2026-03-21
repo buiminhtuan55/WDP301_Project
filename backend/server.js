@@ -39,6 +39,10 @@ import showtimeRoutes from "./routes/showtime.routes.js";
 import updateShowtimeStatus from "./cron/showtime.cron.js";
 // ===== END [NGUOI 5] =====
 
+// ===== AI Features =====
+import aiRoutes from "./routes/ai.routes.js";
+// ===== END AI Features =====
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -89,6 +93,10 @@ app.use("/api/showtimes", showtimeRoutes);
 app.use("/api/combos", comboRoutes);
 app.use("/api/combos", publicComboRoutes);
 // ===== END [NGUOI 5] =====
+
+// ===== AI Routes =====
+app.use("/api/ai", aiRoutes);
+// ===== END AI Routes =====
 
 app.use(errorHandler);
 

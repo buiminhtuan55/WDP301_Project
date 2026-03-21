@@ -22,6 +22,7 @@ import { StarIcon, TimeIcon, CalendarIcon } from "@chakra-ui/icons"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import apiService from "../services/apiService"
+import MovieRecommendations from "../components/MovieRecommendations"
 
 const Homepage = () => {
   const [movies, setMovies] = useState([])
@@ -545,6 +546,9 @@ const Homepage = () => {
           </Box>
         </Flex>
       </Container>
+
+      {/* AI Movie Recommendations Section */}
+      <MovieRecommendations />
     </Box>
   )
 }
