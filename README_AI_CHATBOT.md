@@ -1,9 +1,19 @@
 # Hệ thống AI Chatbot CINEMAGO
 
+## 📢 CẬP NHẬT PROMPT (v2.0)
+**Ngày cập nhật:** 22/03/2025
+
+Prompt Gemini AI đã được **train lại** để:
+- ✅ **Rõ ràng scope**: Chỉ trợ giúp về cinema (phim, vé, combo, lịch chiếu, rạp)
+- ✅ **Ngắn gọn**: Trả lời tối đa 3 dòng, tránh dài dòng
+- ✅ **Luôn có gợi ý**: Kết thúc mỗi câu trả lời bằng gợi ý hành động tiếp theo
+- ✅ **Từ chối lịch sự**: Nếu hỏi ngoài lĩnh vực → Từ chối lịch sự + gợi ý câu hỏi về cinema
+- ✅ **Đúng dữ liệu**: Luôn sử dụng dữ liệu từ database, không bịa
+
 ## Tổng quan
 Chatbot được thiết kế để **LUÔN LUÔN đọc dữ liệu từ MongoDB** thay vì chỉ dựa vào keyword matching. Hệ thống sử dụng:
 
-1. **Google Gemini AI**: Trả lời câu hỏi về web development và phim ảnh
+1. **Google Gemini AI**: Trả lời câu hỏi về phim ảnh (đã train prompt lại)
 2. **AI Helper** (`backend/utils/aiHelper.js`): Phân tích câu hỏi và trích xuất intent + entities
 3. **Database Query**: Luôn query MongoDB để lấy dữ liệu thực tế
 4. **Smart Search**: Tìm kiếm phim thông minh với nhiều phương pháp
@@ -23,9 +33,60 @@ GEMINI_API_KEY=your_api_key_here
 ```
 
 ### 3. Khởi động lại server
-Sau khi thêm API key, khởi động lại server để chatbot sử dụng Gemini AI.
+Sau khi thêm API key, khởi động lại server để chatbot sử dụng Gemini AI (hoặc reload browser để lấy response mới với prompt đã được train).
 
-**Lưu ý**: Nếu không có API key, chatbot vẫn hoạt động bình thường nhưng sẽ không sử dụng Gemini AI cho các câu hỏi về web/phim.
+**Lưu ý**: Nếu không có API key, chatbot vẫn hoạt động bình thường nhưng sẽ sử dụng fallback logic thay vì Gemini AI.
+
+## 🎯 Chi tiết Prompt Training (v2.0)
+
+### 📝 Những thay đổi quan trọng:
+
+#### 1. **Rõ ràng Scope (Scope của trợ giúp)**
+```
+✅ Chỉ trợ giúp về:
+   - Thông tin PHIM (tên, thể loại, thời lượng, mô tả)
+   - LỊCH CHIẾU & SUẤT CHIẾU (ngày, giờ, rạp, phòng)
+   - GIÁ VÉ & ĐẶT VÉ
+   - COMBO ĐỒ ĂN
+   - THÔNG TIN RẠP
+   - GHẾ & PHÒNG CHIẾU
+
+❌ KHÔNG trả lời về:
+   - Web development, lập trình, code
+   - Chính trị, sức khỏe, tài chính cá nhân
+   - Bất kỳ chủ đề khác ngoài cinema
+```
+
+#### 2. **Yêu cầu Độ Dài Trả Lời**
+- **Tối đa 3 dòng** - Tránh dài dòng, lofty
+- Mỗi câu trả lời PHẢI ngắn gọn, cụ thể, có dữ liệu
+
+#### 3. **Bắt buộc Gợi ý Hành Động**
+- MỖICÂU trả lời PHẢI kết thúc bằng:
+  - Gợi ý cụ thể: "Bạn muốn xem lịch chi tiết không?"
+  - Hoặc câu hỏi tiếp theo để user tiếp tục
+
+#### 4. **Từ Chối Lịch Sự**
+- Nếu user hỏi ngoài lĩnh vực cinema:
+  ```
+  "Tôi chuyên về phim thôi! 😊 Muốn xem phim gì hôm nay?"
+  ```
+
+#### 5. **Ví dụ Cách Trả Lời**
+```
+❌ BAD: "Dạ, hiện tại CINEMAGO có 8 phim đang chiếu gồm... (dài dòng)"
+
+✅ GOOD: "📽️ Hiện có 8 phim đang chiếu! Bạn muốn xem lịch chiếu chi tiết không?"
+```
+
+#### 6. **Bắt buộc Sử dụng Database**
+- LUÔN LUÔN trích dữ liệu từ database
+- KHÔNG được bịa ra thông tin
+- Nếu không có dữ liệu → "Hiện không có thông tin về [chủ đề]"
+
+### 📁 File Thay Đổi:
+- `backend/utils/aiHelper.js` - Cập nhật system prompt cho Gemini AI
+- `README_AI_CHATBOT.md` - Tài liệu hướng dẫn cập nhật
 
 ## Cách hoạt động
 

@@ -38,27 +38,6 @@ const Homepage = () => {
   const [allShowtimes, setAllShowtimes] = useState([])
   const navigate = useNavigate()
 
-  // Simple promotional data (static)
-  const promoBanners = [
-    {
-      id: "combo-popcorn",
-      img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop",
-      title: "Combo Bắp Nước chỉ từ 49.000đ",
-      href: "/bookings/cart"
-    },
-    {
-      id: "midweek-sale",
-      img: "https://images.unsplash.com/photo-1517602302552-471fe67acf66?q=80&w=1600&auto=format&fit=crop",
-      title: "Thứ 4 Vui Vẻ - Vé chỉ 59.000đ",
-      href: "/bookings/cart"
-    },
-    {
-      id: "premium-seat",
-      img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1600&auto=format&fit=crop",
-      title: "Ghế VIP - Trải nghiệm cao cấp",
-      href: "/bookings/cart"
-    },
-  ]
 
   // Lấy danh sách phim
   useEffect(() => {
@@ -67,31 +46,16 @@ const Homepage = () => {
     apiService.getPublic("/api/movies", {}, (data, success) => {
       if (!isMounted) return
       if (success) {
-        setMovies(Array.isArray(data?.data) ? data.data : [])
+        const movieList = Array.isArray(data?.data) ? data.data : []
+        setMovies(movieList)
+        // Lấy 3 phim đầu tiên làm featured
+        setFeaturedList(movieList.slice(0, 3))
         setError("")
       } else {
         const message = data?.message || "Không thể tải danh sách phim"
         setError(message)
       }
       setLoading(false)
-    })
-    // Lấy danh sách 3 movie nổi bật theo ID cho slide đầu trang
-    const ids = [
-      "68ce7c57b5418f1cb2dfddd9",
-      "68ce7c57b5418f1cb2dfddd6",
-      "68ce7c57b5418f1cb2dfddd3",
-    ]
-
-    const fetchById = (id) => new Promise((resolve) => {
-      apiService.getById("/api/movies/", id, (data, success) => {
-        resolve(success ? data?.data : null)
-      })
-    })
-
-    // Lấy danh sách 3 movie nổi bật theo ID cho slide đầu trang
-    Promise.all(ids.map(fetchById)).then((items) => {
-      if (!isMounted) return
-      setFeaturedList(items.filter(Boolean))
     })
     return () => {
       isMounted = false
@@ -110,12 +74,12 @@ const Homepage = () => {
     return () => { isMounted = false }
   }, [])
 
-  // Tự động đổi slide
+  // Tự động đổi slide phim nổi bật mỗi 3 giây
   useEffect(() => {
     if (!featuredList.length) return
     const timer = setInterval(() => {
       setFeaturedIndex((prev) => (prev + 1) % featuredList.length)
-    }, 6000)
+    }, 3000)
     return () => clearInterval(timer)
   }, [featuredList])
 
@@ -281,33 +245,6 @@ const Homepage = () => {
           </HStack>
         </Container>
       </Box>
-
-      {/* Promo strip */}
-      <Container maxW="1400px" mb={8}>
-        <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
-          {promoBanners.map((p) => (
-            <Card key={p.id} bg="gray.800" border="1px solid" borderColor="gray.700" _hover={{ borderColor: "orange.400" }}>
-              <CardBody p={0}>
-                <Box position="relative">
-                  <Image
-                    src={p.img}
-                    alt={p.title}
-                    width="100%"
-                    height="160px"
-                    objectFit="cover"
-                    borderTopLeftRadius="md"
-                    borderTopRightRadius="md"
-                  />
-                  <Box p={4}>
-                    <Heading size="sm" color="orange.400">{p.title}</Heading>
-                    <Text fontSize="sm" color="gray.300">Ưu đãi hấp dẫn cho thành viên mới</Text>
-                  </Box>
-                </Box>
-              </CardBody>
-            </Card>
-          ))}
-        </Grid>
-      </Container>
 
       <Container maxW="1400px" pb={10}>
         <Flex gap={6}>
@@ -535,7 +472,7 @@ const Homepage = () => {
                     borderColor="gray.600"
                     _hover={{ bg: "orange.400", borderColor: "orange.400", color: "white" }}
                     _disabled={{ bg: "gray.800", color: "gray.500", borderColor: "gray.700" }}
-                    onClick={() => handlePageChange(currentPage + 1)} 
+                    onClick={() => handlePageChange(currentPage + 1)}
                     isDisabled={currentPage === Math.ceil(filteredMovies.length / pageSize) || filteredMovies.length === 0}
                   >
                     Sau

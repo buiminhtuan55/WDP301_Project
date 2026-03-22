@@ -42,7 +42,7 @@ initGemini();
  */
 export const isWebOrMovieQuestion = (question) => {
     const q = question.toLowerCase();
-    
+
     // Từ khóa về web development
     const webKeywords = [
         'web', 'website', 'html', 'css', 'javascript', 'js', 'react', 'vue', 'angular',
@@ -64,7 +64,7 @@ export const isWebOrMovieQuestion = (question) => {
         'jest', 'mocha', 'cypress', 'selenium', 'docker', 'kubernetes', 'ci', 'cd',
         'agile', 'scrum', 'gitlab', 'bitbucket', 'jenkins', 'travis', 'github actions'
     ];
-    
+
     // Từ khóa về phim
     const movieKeywords = [
         'phim', 'movie', 'film', 'cinema', 'rạp', 'chiếu', 'suất chiếu', 'lịch chiếu',
@@ -91,21 +91,21 @@ export const isWebOrMovieQuestion = (question) => {
         'streaming', 'netflix', 'disney+', 'hbo', 'amazon prime', 'hulu', 'apple tv+',
         'youtube', 'vimeo', 'blu-ray', 'dvd', '4k', 'uhd', 'hdr', 'dolby vision'
     ];
-    
+
     // Kiểm tra từ khóa web
     for (const keyword of webKeywords) {
         if (q.includes(keyword)) {
             return true;
         }
     }
-    
+
     // Kiểm tra từ khóa phim
     for (const keyword of movieKeywords) {
         if (q.includes(keyword)) {
             return true;
         }
     }
-    
+
     return false;
 };
 
@@ -120,66 +120,83 @@ export const askGemini = async (question, context = {}) => {
         console.warn('⚠️ Gemini AI not initialized');
         return null;
     }
-    
+
     try {
-        // Tạo system prompt mạnh mẽ
-        let systemPrompt = `Bạn là trợ lý AI của CINEMAGO - hệ thống rạp chiếu phim. 
-Bạn có quyền truy cập vào DATABASE thực tế của CINEMAGO. Hãy dựa vào dữ liệu đó để trả lời.
+        // Tạo system prompt - Loại bỏ kí tự đặc biệt, trả lời ngắn gọn và sạch
+        let systemPrompt = `Bạn là trợ lý AI của CINEMAGO. Chỉ hỗ trợ về:
+- Thông tin phim (tên, thể loại, thời lượng, mô tả)
+- Lịch chiếu, suất chiếu (ngày, giờ, rạp, phòng)
+- Giá vé, đặt vé
+- Combo đồ ăn
+- Thông tin rạp (địa chỉ, chi nhánh)
+- Ghế, phòng chiếu
 
-**NGUYÊN TẮC QUAN TRỌNG:**
-1. LUÔN sử dụng dữ liệu từ database để trả lời
-2. Nếu user hỏi về phim → Dựa vào danh sách phim trong context
-3. Nếu user hỏi về lịch chiếu → Dựa vào showtimes trong context
-4. Nếu user hỏi về combo → Dựa vào danh sách combo trong context
-5. Trả lời bằng TIẾNG VIỆT, ngắn gọn, có emoji cho dễ đọc
-6. Nếu không có dữ liệu trong database → Thành thật nói "không có thông tin"
+KHÔNG trả lời về: web development, lập trình, chính trị, sức khỏe, tài chính, hoặc bất kỳ chủ đề ngoài cinema.
 
-**Cấu trúc câu trả lời:**
-- Trả lời trực tiếp câu hỏi
-- Liệt kê thông tin cụ thể từ database
-- Kết thúc bằng gợi ý hành động tiếp theo`;
+NGUYÊN TẮC TRẢ LỜI:
+1. Luôn sử dụng dữ liệu thực từ database
+2. Trả lời ngắn gọn (2-3 dòng tối đa)
+3. KHÔNG dùng ký tự đặc biệt: không *, **, __, ..., hay ký tự format khác
+4. KHÔNG dùng dấu bullet hoặc các ký tự liệt kê
+5. Cách trình bày: chỉ dùng text bình thường, có thể giữ lại 1-2 emoji nếu cần thiết
+6. Kết thúc bằng gợi ý hành động cụ thể hoặc câu hỏi tiếp theo
+7. Nếu hỏi ngoài lĩnh vực cinema, từ chối lịch sự và gợi ý hỏi về phim`;
 
         // Thêm dữ liệu từ database vào prompt
         if (context.movies && context.movies.length > 0) {
-            systemPrompt += `\n\n📽️ **DANH SÁCH PHIM TRONG DATABASE:**\n`;
+            systemPrompt += `\n\nDanh sách phim: `;
             context.movies.forEach((movie, idx) => {
-                systemPrompt += `${idx + 1}. "${movie.title}" - Thể loại: ${movie.genre?.join(', ') || 'N/A'} - Thời lượng: ${movie.duration} phút\n`;
+                systemPrompt += `${idx + 1}. ${movie.title} (${movie.genre?.join(', ') || 'N/A'}, ${movie.duration} phút)`;
+                if (idx < context.movies.length - 1) systemPrompt += ` | `;
             });
-            systemPrompt += `\n(Tổng: ${context.movieCount || context.movies.length} phim)`;
+            systemPrompt += ` (tổng ${context.movieCount || context.movies.length} phim)`;
         }
 
         if (context.showtimesByMovie && Object.keys(context.showtimesByMovie).length > 0) {
-            systemPrompt += `\n\n📅 **LỊCH CHIẾU THEO PHIM:**\n`;
+            systemPrompt += `\n\nLịch chiếu:`;
             Object.entries(context.showtimesByMovie).slice(0, 10).forEach(([movieName, info]) => {
-                systemPrompt += `\n🎬 "${movieName}":\n`;
-                info.showtimes.slice(0, 5).forEach(st => {
-                    systemPrompt += `   • ${st.date} ${st.time} - ${st.theater} (${st.room})\n`;
+                systemPrompt += `\n${movieName}: `;
+                info.showtimes.slice(0, 5).forEach((st, idx) => {
+                    systemPrompt += `${st.date} ${st.time} tại ${st.theater} (${st.room})`;
+                    if (idx < info.showtimes.length - 1) systemPrompt += ` | `;
                 });
             });
-            systemPrompt += `\n(Tổng: ${context.showtimesUpcoming || 0} suất chiếu)`;
         }
 
         if (context.combos && context.combos.length > 0) {
-            systemPrompt += `\n\n🍿 **COMBO TRONG DATABASE:**\n`;
+            systemPrompt += `\n\nCombo: `;
             context.combos.forEach((combo, idx) => {
-                systemPrompt += `${idx + 1}. ${combo.name} - ${combo.price}${combo.description ? ` - ${combo.description}` : ''}\n`;
+                systemPrompt += `${combo.name} (${combo.price})`;
+                if (idx < context.combos.length - 1) systemPrompt += ` | `;
             });
-            systemPrompt += `\n(Tổng: ${context.comboCount || context.combos.length} combo)`;
         }
 
         if (context.theaters && context.theaters.length > 0) {
-            systemPrompt += `\n\n🏛️ **RẠP TRONG DATABASE:**\n`;
+            systemPrompt += `\n\nRạp: `;
             context.theaters.forEach((theater, idx) => {
-                systemPrompt += `${idx + 1}. ${theater.name}${theater.location ? ` - ${theater.location}` : ''}\n`;
+                systemPrompt += `${theater.name}${theater.location ? ' - ' + theater.location : ''}`;
+                if (idx < context.theaters.length - 1) systemPrompt += ` | `;
             });
         }
 
-        const prompt = `${systemPrompt}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n❓ **CÂU HỎI CỦA NGƯỜI DÙNG:** ${question}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nHãy trả lời dựa vào dữ liệu ở trên:`;
+        const finalPrompt = `${systemPrompt}
 
-        const result = await model.generateContent(prompt);
+Câu hỏi: "${question}"
+
+Hướng dẫn trả lời:
+- Chỉ trả lời trọng tâm câu hỏi, không thêm info thừa
+- Nếu có liên quan cinema: trả lời dựa vào dữ liệu ở trên
+- Nếu không liên quan: từ chối lịch sự, không cần gợi ý thêm
+- Max 2-3 dòng, ngắn gọn, sạch sẽ
+- KHÔNG dùng **, *, __, emoji, bullet points
+- KHÔNG thêm câu gợi ý hay ví dụ
+
+Trả lời:`;
+
+        const result = await model.generateContent(finalPrompt);
         const response = await result.response;
         const text = response.text();
-        
+
         console.log('✅ Gemini AI response received');
         return text;
     } catch (error) {
@@ -197,12 +214,12 @@ Bạn có quyền truy cập vào DATABASE thực tế của CINEMAGO. Hãy dự
 export const analyzeQuestion = async (question) => {
     // Phân tích đơn giản nhưng hiệu quả - LUÔN trả về intent và entities
     // Không cần AI API phức tạp, chỉ cần logic tốt + query database
-    
+
     const intent = extractIntent(question);
     const entities = extractEntities(question);
-    
+
     console.log('🔍 Question analysis:', { intent, entities, question });
-    
+
     return {
         intent,
         entities,
@@ -215,7 +232,7 @@ export const analyzeQuestion = async (question) => {
  */
 const extractIntent = (question) => {
     const q = question.toLowerCase();
-    
+
     // QUAN TRỌNG: Nếu có "hôm nay" → luôn là get_today_movies (ưu tiên cao nhất)
     if (q.includes('hôm nay') || q.includes('today')) {
         return 'get_today_movies';
@@ -239,7 +256,7 @@ const extractIntent = (question) => {
     if (q.includes('đặt vé') || q.includes('booking')) {
         return 'book_ticket';
     }
-    
+
     return 'general_query';
 };
 
@@ -276,25 +293,25 @@ const extractEntities = (question) => {
                 .replace(/^(phim|movie|có|về|hỏi|muốn|tìm|thông\s+tin)\s+/i, '')
                 .replace(/\s+(không|có|chiếu|lịch|suất|nào|gì|đang)$/i, '')
                 .trim();
-            
+
             // Loại bỏ các từ thừa ở đầu và cuối
             const stopWords = ['có', 'về', 'hỏi', 'muốn', 'tìm', 'thông tin', 'phim', 'movie'];
             const words = movieName.split(/\s+/);
             let startIdx = 0;
             let endIdx = words.length;
-            
+
             // Loại bỏ stop words ở đầu
             while (startIdx < words.length && stopWords.includes(words[startIdx].toLowerCase())) {
                 startIdx++;
             }
-            
+
             // Loại bỏ stop words ở cuối
             while (endIdx > startIdx && stopWords.includes(words[endIdx - 1].toLowerCase())) {
                 endIdx--;
             }
-            
+
             movieName = words.slice(startIdx, endIdx).join(' ').trim();
-            
+
             if (movieName.length > 1 && movieName.length < 50) {
                 entities.movieName = movieName;
                 break;
@@ -330,7 +347,7 @@ export const getDatabaseContext = async () => {
         const movies = await Movie.find({ status: 'active' })
             .select('title genre')
             .limit(50);
-        
+
         return {
             availableMovies: movies.map(m => ({
                 title: m.title,
