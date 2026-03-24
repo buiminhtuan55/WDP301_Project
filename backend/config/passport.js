@@ -29,6 +29,7 @@ export const configurePassport = () => {
           user = await User.findOne({ email });
           if (user) {
             user.googleId = profile.id; // Liên kết googleId
+            user.isVerified = true; // Email Google đã được xác thực
             await user.save();
             return done(null, user);
           }
@@ -40,6 +41,7 @@ export const configurePassport = () => {
             full_name: profile.displayName,
             username: email, // Hoặc tạo username ngẫu nhiên/duy nhất
             role: "customer", // Mặc định là khách hàng
+            isVerified: true, // Email Google đã được xác thực
           });
           return done(null, newUser);
         } catch (error) {

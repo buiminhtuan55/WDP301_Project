@@ -65,6 +65,16 @@ const userSchema = new mongoose.Schema({
     },
     googleId: {
         type: String
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationToken: {
+        type: String
+    },
+    verificationTokenExpires: {
+        type: Date
     }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 

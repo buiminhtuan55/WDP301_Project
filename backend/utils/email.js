@@ -9,16 +9,22 @@ const __dirname = path.dirname(__filename);
 // Load .env from parent directory
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
-// Tạo transporter cho email
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: process.env.EMAIL_PORT || 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+// Tạo transporter cho email (lazy init để đảm bảo env vars đã được load)
+let _transporter = null;
+const getTransporter = () => {
+  if (!_transporter) {
+    _transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      port: process.env.EMAIL_PORT || 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
   }
-});
+  return _transporter;
+};
 
 // Gửi email OTP
 export const sendOTPEmail = async (email, otp) => {
@@ -75,7 +81,7 @@ export const sendOTPEmail = async (email, otp) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    await getTransporter().sendMail(mailOptions);
     console.log(`OTP email sent to ${email}`);
   } catch (error) {
     console.error('Error sending OTP email:', error);
@@ -86,7 +92,7 @@ export const sendOTPEmail = async (email, otp) => {
 // Test kết nối email
 export const testEmailConnection = async () => {
   try {
-    await transporter.verify();
+    await getTransporter().verify();
     console.log('Email server connection verified');
     return true;
   } catch (error) {
@@ -118,7 +124,7 @@ export const sendResetLinkEmail = async (email, resetLink, displayName) => {
     </div>
   `;
 
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: process.env.EMAIL_USER,
     to: email,
     subject: 'Đặt lại mật khẩu - CinemaGo',
@@ -236,7 +242,7 @@ export const sendBookingConfirmationEmail = async (bookingData) => {
       </div>
     `;
 
-    await transporter.sendMail({
+    await getTransporter().sendMail({
       from: process.env.EMAIL_USER,
       to: email,
       subject: `🎬 Xác nhận đặt vé - ${movieTitle} - CinemaGo`,
@@ -248,4 +254,55 @@ export const sendBookingConfirmationEmail = async (bookingData) => {
     console.error('Error sending booking confirmation email:', error);
     // Không throw error để không ảnh hưởng đến flow chính
   }
+};
+
+// Gửi email xác thực tài khoản
+export const sendVerificationEmail = async (email, verificationLink, displayName) => {
+  const safeName = displayName || 'bạn';
+  const html = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; background: #f4f6fb; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); padding: 0 0 32px 0;">
+      <div style="background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%); border-radius: 14px 14px 0 0; padding: 32px 0 24px 0; text-align: center;">
+        <h1 style="color: #fff; font-size: 2.1rem; margin: 0;">CinemaGo</h1>
+        <p style="color: #e3f2fd; font-size: 1.1rem; margin: 8px 0 0 0;">Xác thực tài khoản của bạn</p>
+      </div>
+      <div style="padding: 32px 32px 24px 32px; background: #fff; border-radius: 0 0 14px 14px;">
+        <h2 style="color: #222; text-align: center; font-size: 1.5rem; margin-bottom: 18px;">Chào mừng đến với CinemaGo!</h2>
+        <p style="font-size: 16px; color: #444; margin-bottom: 18px; text-align: center;">
+          Xin chào <strong>${safeName}</strong>,<br>
+          Cảm ơn bạn đã đăng ký tài khoản tại CinemaGo. Để hoàn tất quá trình đăng ký, vui lòng nhấn nút bên dưới để xác thực email của bạn.
+        </p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${verificationLink}" style="display: inline-block; background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%); color: #fff; text-decoration: none; font-size: 18px; font-weight: 700; padding: 16px 48px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,123,255,0.18);">
+            Xác thực email
+          </a>
+        </div>
+        <p style="font-size: 15px; color: #666; text-align: center; margin-bottom: 18px;">
+          <strong>Lưu ý:</strong> Liên kết này chỉ có hiệu lực trong vòng <span style="color: #007bff;">30 phút</span> kể từ khi nhận được email này.
+        </p>
+        <div style="background: #f8f9fa; border-radius: 8px; padding: 18px 20px; margin: 24px 0;">
+          <ul style="color: #888; font-size: 14px; margin: 0 0 0 18px; padding: 0;">
+            <li>Nếu bạn không thực hiện đăng ký này, vui lòng bỏ qua email này.</li>
+            <li>Sau khi xác thực, bạn có thể đăng nhập và bắt đầu đặt vé xem phim.</li>
+          </ul>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 24px; padding-bottom: 12px;">
+        <p style="font-size: 13px; color: #aaa; margin: 0;">
+          Cần hỗ trợ? Liên hệ <a href="mailto:support@cinemago.vn" style="color: #007bff; text-decoration: underline;">support@cinemago.vn</a>
+        </p>
+        <p style="font-size: 12px; color: #bbb; margin: 8px 0 0 0;">
+          © ${new Date().getFullYear()} CinemaGo. All rights reserved.
+        </p>
+      </div>
+    </div>
+  `;
+
+  await getTransporter().sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: '✉️ Xác thực tài khoản - CinemaGo',
+    html
+  });
+
+  console.log(`Verification email sent to ${email}`);
 };

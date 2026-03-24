@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
-import { registerStaff, loginStaff, registerCustomer, loginCustomer, changePassword, logout, updateProfile, getUsers, getUserById, forgotPasswordLink, resetPasswordWithToken, getMyProfile, forgotPassword, resetPassword, updateUserStatus, socialLoginCallback  } from "../controllers/auth.controller.js";
+import { registerStaff, loginStaff, registerCustomer, loginCustomer, changePassword, logout, updateProfile, getUsers, getUserById, forgotPasswordLink, resetPasswordWithToken, getMyProfile, forgotPassword, resetPassword, updateUserStatus, socialLoginCallback, verifyEmail, resendVerificationEmail  } from "../controllers/auth.controller.js";
 import { verifyToken,requireAdmin } from "../middlewares/auth.js";
 
 
@@ -23,6 +23,10 @@ router.post("/reset-password", resetPassword);
 router.post("/users", verifyToken, getUsers);
 router.get("/users/:id", verifyToken, getUserById);
 router.patch("/users/:userId/status", verifyToken, requireAdmin, updateUserStatus);
+
+// Email verification
+router.get("/verify-email", verifyEmail);
+router.post("/resend-verification", resendVerificationEmail);
 
 // Route để bắt đầu quá trình đăng nhập Google
 router.get(

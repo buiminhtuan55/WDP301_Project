@@ -17,6 +17,7 @@ import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SocialAuthSuccess from "./pages/SocialAuthSuccess";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 import AdminAndStaffLoginPage from "./pages/admin/AdminAndStaffLoginPage";
 import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 
@@ -93,6 +94,7 @@ function AppContent() {
       "/reset-password",
       "/admin/login",
       "/logintest",
+      "/verify-email",
     ];
     const isHiddenAuthRoute = hiddenAuthRoutes.includes(location.pathname);
 
@@ -131,6 +133,7 @@ function AppContent() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/logintest" element={<LoginPagetest />} />
           <Route path="/social-auth-success" element={<SocialAuthSuccess />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
           {/* ========== */}

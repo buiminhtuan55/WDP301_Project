@@ -207,13 +207,13 @@ const Register = () => {
           description:
             data?.message || "Vui lòng kiểm tra email để xác thực tài khoản.",
           status: "success",
-          duration: 2500,
+          duration: 5000,
           isClosable: true,
         });
 
         setTimeout(() => {
           navigate("/login");
-        }, 2000);
+        }, 4000);
       } else {
         toast({
           title: "Đăng ký thất bại",
