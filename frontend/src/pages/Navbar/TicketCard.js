@@ -1,14 +1,45 @@
 import { Box, Text, Badge, HStack, VStack, Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function TicketCard({ ticket, bookingId }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  // Countdown cho booking pending có expires_at
+  useEffect(() => {
+    if (!ticket.expires_at || ticket.status !== 'pending') return;
+
+    const calcTimeLeft = () => {
+      const now = new Date().getTime();
+      const expires = new Date(ticket.expires_at).getTime();
+      return Math.max(0, Math.floor((expires - now) / 1000));
+    };
+
+    setTimeLeft(calcTimeLeft());
+
+    const timer = setInterval(() => {
+      const remaining = calcTimeLeft();
+      setTimeLeft(remaining);
+      if (remaining <= 0) clearInterval(timer);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [ticket.expires_at, ticket.status]);
 
   const handlePayment = (e) => {
     e.stopPropagation();
     navigate(`/bookings/checkout/${bookingId}`);
+  };
+
+  const isExpired = timeLeft !== null && timeLeft <= 0;
+  const showPayButton = ticket.status === 'pending' && !isExpired;
+
+  const formatTime = (seconds) => {
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    return `${m}:${s}`;
   };
 
   return (
@@ -63,7 +94,40 @@ export default function TicketCard({ ticket, bookingId }) {
         <Text color="orange.300" fontWeight="bold" fontSize="lg">
           {ticket.total?.toLocaleString("vi-VN")} ₫
         </Text>
-        {(ticket.status === 'pending' || ticket.payment_status === 'pending') && (
+
+        {/* Countdown timer */}
+        {ticket.status === 'pending' && timeLeft !== null && (
+          <Box
+            w="full"
+            py={2}
+            px={3}
+            rounded="lg"
+            bg={isExpired ? "rgba(239,68,68,0.15)" : timeLeft <= 60 ? "rgba(239,68,68,0.12)" : "rgba(251,146,60,0.10)"}
+            textAlign="center"
+          >
+            {isExpired ? (
+              <Text fontSize="sm" color="red.400" fontWeight="600">
+                ⏰ Đã hết thời gian thanh toán
+              </Text>
+            ) : (
+              <HStack justify="center" spacing={2}>
+                <Text fontSize="xs" color={timeLeft <= 60 ? "red.300" : "orange.300"}>
+                  ⏱️ Còn lại:
+                </Text>
+                <Text
+                  fontSize="md"
+                  fontWeight="800"
+                  color={timeLeft <= 60 ? "red.400" : "orange.400"}
+                  fontFamily="mono"
+                >
+                  {formatTime(timeLeft)}
+                </Text>
+              </HStack>
+            )}
+          </Box>
+        )}
+
+        {showPayButton && (
           <Button
             colorScheme="orange"
             size="sm"
