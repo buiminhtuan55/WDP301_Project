@@ -54,6 +54,9 @@ const bookingSchema = new mongoose.Schema({
     },
     payment_link_id: {
         type: String
+    },
+    expires_at: {
+        type: Date
     }
 
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });

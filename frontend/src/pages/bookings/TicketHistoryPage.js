@@ -73,6 +73,7 @@ const TicketHistoryPage = () => {
             : '',
           status: booking.status,
           payment_status: booking.payment_status,
+          expires_at: booking.expires_at,
           date: booking.showtime_id?.start_time?.vietnamFormatted || '',
           total: booking.total_price?.$numberDecimal ? parseFloat(booking.total_price.$numberDecimal) : undefined,
         }}

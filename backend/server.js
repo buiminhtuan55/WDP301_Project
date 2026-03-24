@@ -33,6 +33,7 @@ import showtimeRoutes from "./routes/showtime.routes.js";
 
 // import "./cron/scheduler.js";
 import updateShowtimeStatus from "./cron/showtime.cron.js";
+import cancelExpiredBookings from "./cron/booking.cron.js";
 
 // ===== AI Features =====
 import aiRoutes from "./routes/ai.routes.js";
@@ -95,5 +96,6 @@ app.listen(PORT, () => {
   connectDB();
   // ===== Cron bootstrap =====
   updateShowtimeStatus();
+  cancelExpiredBookings();
   console.log(`Server is running on port ${PORT}`);
 });

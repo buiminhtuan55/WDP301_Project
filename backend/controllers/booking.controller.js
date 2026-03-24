@@ -7,6 +7,7 @@ import User from '../models/user.js';
 import mongoose from 'mongoose';
 import { formatForAPI } from '../utils/timezone.js';
 import { sendBookingConfirmationEmail } from '../utils/email.js';
+import { BOOKING_EXPIRE_MINUTES } from '../cron/booking.cron.js';
 
 // Create a new booking
 export const createBooking = async (req, res) => {
@@ -60,6 +61,10 @@ export const createBooking = async (req, res) => {
             }
         }
 
+        const expiresAt = payment_method === 'online' 
+            ? new Date(Date.now() + BOOKING_EXPIRE_MINUTES * 60 * 1000) 
+            : null;
+
         const newBooking = new Booking({
             user_id,
             showtime_id,
@@ -67,7 +72,8 @@ export const createBooking = async (req, res) => {
             payment_method,
             status: 'pending',
             payment_status: payment_method === 'cash' ? 'success' : 'pending',
-            combos: combos
+            combos: combos,
+            expires_at: expiresAt
         });
 
         const savedBooking = await newBooking.save({ session });
@@ -287,6 +293,12 @@ export const getBookingDetails = async (req, res) => {
         }
 
         const bookingSeats = await BookingSeat.find({ booking_id: req.params.id }).populate('seat_id');
+
+        // Auto-set expires_at cho booking cũ pending online chưa có
+        if (booking.status === 'pending' && booking.payment_method === 'online' && !booking.expires_at) {
+            booking.expires_at = new Date(Date.now() + 5 * 60 * 1000);
+            await booking.save();
+        }
 
         const bookingObj = booking.toObject();
         if (bookingObj.created_at) {

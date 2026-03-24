@@ -63,7 +63,19 @@ export const createPaymentLink = async (req, res, next) => {
       return res.status(400).json({ message: "Booking khong o trang thai pending" });
     }
 
-    const orderCode = parseInt(booking._id.toString().slice(-6), 16);
+    // Kiểm tra booking đã hết hạn chưa
+    if (booking.expires_at && new Date() > new Date(booking.expires_at)) {
+      return res.status(400).json({ message: "Đơn đặt vé đã hết thời gian thanh toán. Vui lòng đặt lại." });
+    }
+
+    // Nếu booking chưa có expires_at (booking cũ), set lại 5 phút
+    if (!booking.expires_at) {
+      booking.expires_at = new Date(Date.now() + 5 * 60 * 1000);
+      await booking.save();
+    }
+
+    // Tạo orderCode unique để tránh trùng với lần tạo trước
+    const orderCode = Date.now() % 1000000000;
     const amount = Math.round(parseFloat(booking.total_price.toString()));
 
     const rawDescription = `${bookingId}`;

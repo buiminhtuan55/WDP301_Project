@@ -40,6 +40,7 @@ const CartCheckoutPage = () => {
   const [error, setError] = useState("");
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(null); // seconds remaining
 
   useEffect(() => {
     if (!bookingId) {
@@ -73,6 +74,39 @@ const CartCheckoutPage = () => {
       setLoading(false);
     });
   }, [bookingId, navigate, toast]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (!booking?.expires_at) return;
+
+    const calcTimeLeft = () => {
+      const now = new Date().getTime();
+      const expires = new Date(booking.expires_at).getTime();
+      const diff = Math.max(0, Math.floor((expires - now) / 1000));
+      return diff;
+    };
+
+    setTimeLeft(calcTimeLeft());
+
+    const timer = setInterval(() => {
+      const remaining = calcTimeLeft();
+      setTimeLeft(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(timer);
+        toast({
+          title: "Hết thời gian thanh toán",
+          description: "Đơn đặt vé đã bị hủy do quá thời gian. Vui lòng đặt lại.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate("/bookings/cancelled");
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [booking, toast, navigate]);
 
   const handleCheckout = async () => {
     setIsProcessingPayment(true);
@@ -429,6 +463,35 @@ const CartCheckoutPage = () => {
                   <Heading size="md" color="white">
                     Tóm tắt thanh toán
                   </Heading>
+
+                  {timeLeft !== null && (
+                    <Box
+                      p={4}
+                      rounded="20px"
+                      bg={timeLeft <= 60 ? "rgba(239,68,68,0.15)" : "rgba(251,146,60,0.12)"}
+                      border={`1px solid ${timeLeft <= 60 ? 'rgba(239,68,68,0.3)' : 'rgba(251,146,60,0.2)'}`}
+                      textAlign="center"
+                      transition="all 0.3s"
+                    >
+                      <Text fontSize="xs" color={timeLeft <= 60 ? "red.300" : "orange.300"} mb={1}>
+                        ⏱️ Thời gian thanh toán còn lại
+                      </Text>
+                      <Text
+                        fontSize="2xl"
+                        fontWeight="900"
+                        color={timeLeft <= 60 ? "red.400" : "orange.400"}
+                        fontFamily="mono"
+                        letterSpacing="wider"
+                      >
+                        {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:{String(timeLeft % 60).padStart(2, '0')}
+                      </Text>
+                      {timeLeft <= 60 && (
+                        <Text fontSize="xs" color="red.300" mt={1}>
+                          Sắp hết thời gian! Vui lòng thanh toán ngay.
+                        </Text>
+                      )}
+                    </Box>
+                  )}
 
                   <Divider borderColor="whiteAlpha.200" />
 
