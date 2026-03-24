@@ -68,10 +68,12 @@ function AppContent() {
 
   useEffect(() => {
     let roleData = null;
+
     try {
       roleData = JSON.parse(localStorage.getItem("role"));
     } catch (e) {
-      const directRole = localStorage.getItem("role") || localStorage.getItem("userRole");
+      const directRole =
+        localStorage.getItem("role") || localStorage.getItem("userRole");
       if (directRole) {
         roleData = { role: directRole };
       }
@@ -79,12 +81,20 @@ function AppContent() {
 
     const role = roleData?.role || "";
     const isAdmin = role.toLowerCase() === "admin";
-    const isStaff = role.toLowerCase() === "lv2" || role.toLowerCase() === "lv1";
+    const isStaff =
+      role.toLowerCase() === "lv2" || role.toLowerCase() === "lv1";
 
     const pathStartsWithStaff = location.pathname.startsWith("/staff/");
     const pathStartsWithAdmin = /^\/admin\//.test(location.pathname);
-    const isResetPasswordPage = location.pathname === "/reset-password";
-    const isStaffOrAdminRoute = pathStartsWithStaff || pathStartsWithAdmin || isResetPasswordPage;
+
+    const hiddenAuthRoutes = [
+      "/login",
+      "/register",
+      "/reset-password",
+      "/admin/login",
+      "/logintest",
+    ];
+    const isHiddenAuthRoute = hiddenAuthRoutes.includes(location.pathname);
 
     const isManagementPage =
       location.pathname === "/movies" ||
@@ -99,7 +109,12 @@ function AppContent() {
         !location.pathname.startsWith("/bookings/cancelled") &&
         !location.pathname.startsWith("/bookings/eticket"));
 
-    const shouldHide = isStaffOrAdminRoute || (isManagementPage && (isAdmin || isStaff));
+    const shouldHide =
+      isHiddenAuthRoute ||
+      pathStartsWithStaff ||
+      pathStartsWithAdmin ||
+      (isManagementPage && (isAdmin || isStaff));
+
     setShouldHideHeaderFooter(shouldHide);
   }, [location.pathname]);
 
@@ -135,12 +150,27 @@ function AppContent() {
           {/* ========== */}
 
           {/* ===== Booking & Payment Routes ===== */}
-          <Route path="/bookings/showtimes/:movieId" element={<ShowtimeSelection />} />
-          <Route path="/bookings/seats/:showtimeId" element={<SeatSelection />} />
-          <Route path="/bookings/checkout/:bookingId" element={<CartPage />} />
+          <Route
+            path="/bookings/showtimes/:movieId"
+            element={<ShowtimeSelection />}
+          />
+          <Route
+            path="/bookings/seats/:showtimeId"
+            element={<SeatSelection />}
+          />
+          <Route
+            path="/bookings/checkout/:bookingId"
+            element={<CartPage />}
+          />
           <Route path="/bookings/cart" element={<CartPage />} />
-          <Route path="/bookings/cancelled" element={<BookingCancelledPage />} />
-          <Route path="/bookings/eticket/:bookingId" element={<ETicketPage />} />
+          <Route
+            path="/bookings/cancelled"
+            element={<BookingCancelledPage />}
+          />
+          <Route
+            path="/bookings/eticket/:bookingId"
+            element={<ETicketPage />}
+          />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route path="/payment-failed" element={<PaymentFailedPage />} />
           <Route path="/ticket-history" element={<TicketHistoryPage />} />
@@ -160,8 +190,14 @@ function AppContent() {
           <Route path="/staff/l2" element={<StaffL2Page />} />
           <Route path="/staff/ticket" element={<TicketSeatSelectPage />} />
           <Route path="/staff/payos-return" element={<PayOSReturnHandler />} />
-          <Route path="/staff/payment-success" element={<StaffPaymentSuccessPage />} />
-          <Route path="/staff/payment-failed" element={<StaffPaymentFailedPage />} />
+          <Route
+            path="/staff/payment-success"
+            element={<StaffPaymentSuccessPage />}
+          />
+          <Route
+            path="/staff/payment-failed"
+            element={<StaffPaymentFailedPage />}
+          />
           {/* ========== */}
 
           <Route path="*" element={<h1>404 - Not Found</h1>} />
@@ -169,8 +205,6 @@ function AppContent() {
       </Box>
 
       {!shouldHideHeaderFooter && <Footer />}
-      
-      {/* Chatbot - Hiển thị trên tất cả các trang (trừ admin/staff pages) */}
       {!shouldHideHeaderFooter && <Chatbot />}
     </Box>
   );
