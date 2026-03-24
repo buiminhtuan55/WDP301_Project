@@ -4,40 +4,35 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// ===== [NGUOI 1] Core Config & Auth =====
+// ===== Core Config & Auth =====
 import passport from "passport";
 import { connectDB } from "./config/db.js";
 import { configurePassport } from "./config/passport.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/auth.routes.js";
 import protectedRoutes from "./routes/protected.routes.js";
-// ===== END [NGUOI 1] =====
 
-// ===== [NGUOI 2] Movies & Reviews =====
+// ===== Movies & Reviews =====
 import publicMovieRoutes from "./routes/publicMovie.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
-// ===== END [NGUOI 2] =====
 
-// ===== [NGUOI 3] Theaters, Rooms & Seats =====
+// ===== Theaters, Rooms & Seats =====
 import publicRoutes from "./routes/public/public.routes.js";
 import roomRoutes from "./routes/room.routes.js";
 import seatRoutes from "./routes/seat.routes.js";
 import theaterRoutes from "./routes/theater.routes.js";
-// ===== END [NGUOI 3] =====
 
-// ===== [NGUOI 4] Bookings & Payments =====
+// ===== Bookings & Payments =====
 import bookingRoutes from "./routes/booking.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
-// ===== END [NGUOI 4] =====
 
-// ===== [NGUOI 5] Showtimes, Combos, AuditLog & Cron =====
+// ===== Showtimes, Combos, AuditLog & Cron =====
 import comboRoutes from "./routes/combo.routes.js";
 import publicComboRoutes from "./routes/public/publicCombo.routes.js";
 import showtimeRoutes from "./routes/showtime.routes.js";
 
 // import "./cron/scheduler.js";
 import updateShowtimeStatus from "./cron/showtime.cron.js";
-// ===== END [NGUOI 5] =====
 
 // ===== AI Features =====
 import aiRoutes from "./routes/ai.routes.js";
@@ -57,42 +52,36 @@ app.use(
   })
 );
 
-// ===== [NGUOI 1] Passport Setup =====
+// ===== Passport Setup =====
 configurePassport();
 app.use(passport.initialize());
-// ===== END [NGUOI 1] =====
 
 app.get("/", (req, res) => {
   res.send("CinemaGo Server is RUNNING!");
 });
 
-// ===== [NGUOI 1] Auth Routes =====
+// ===== Auth Routes =====
 app.use("/", authRoutes);
 app.use("/api", protectedRoutes);
-// ===== END [NGUOI 1] =====
 
-// ===== [NGUOI 2] Movie & Review Routes =====
+// ===== Movies & Review Routes =====
 app.use("/api/movies", publicMovieRoutes);
 app.use("/api/reviews", reviewRoutes);
-// ===== END [NGUOI 2] =====
 
-// ===== [NGUOI 3] Theater, Room & Seat Routes =====
+// ===== Theater, Room & Seat Routes =====
 app.use("/api/public", publicRoutes);
 app.use("/api/theaters", theaterRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/seats", seatRoutes);
-// ===== END [NGUOI 3] =====
 
-// ===== [NGUOI 4] Booking & Payment Routes =====
+// ===== Bookings & Payments Routes =====
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
-// ===== END [NGUOI 4] =====
 
-// ===== [NGUOI 5] Showtime, Combo & AuditLog Routes =====
+// ===== Showtime, Combo & AuditLog Routes =====
 app.use("/api/showtimes", showtimeRoutes);
 app.use("/api/combos", comboRoutes);
 app.use("/api/combos", publicComboRoutes);
-// ===== END [NGUOI 5] =====
 
 // ===== AI Routes =====
 app.use("/api/ai", aiRoutes);
@@ -104,8 +93,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   connectDB();
-  // ===== [NGUOI 5] Cron bootstrap =====
+  // ===== Cron bootstrap =====
   updateShowtimeStatus();
-  // ===== END [NGUOI 5] =====
   console.log(`Server is running on port ${PORT}`);
 });
