@@ -3,13 +3,6 @@ import {
   Button,
   Heading,
   useToast,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
   Text,
   VStack,
   Spinner,
@@ -21,8 +14,15 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   useDisclosure,
+  Image,
+  HStack,
+  Divider,
+  Badge,
+  Container,
+  Card,
+  CardBody,
+  SimpleGrid,
 } from "@chakra-ui/react";
-import { Image, HStack, Stack, Divider, Badge } from "@chakra-ui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import apiService from "../../services/apiService";
@@ -50,16 +50,19 @@ const CartCheckoutPage = () => {
 
     apiService.getById("/api/bookings/", bookingId, (data, success) => {
       if (success) {
-        // Nếu vé đã được xử lý (không còn ở trạng thái pending), thông báo và điều hướng
-        if (data.booking.status !== 'pending') {
+        if (data.booking.status !== "pending") {
           toast({
             title: "Giao dịch đã hoàn tất",
-            description: `Vé này đã được ${data.booking.status === 'confirmed' ? 'xác nhận thanh toán' : 'hủy'}. Bạn sẽ được chuyển về trang lịch sử.`,
+            description: `Vé này đã được ${
+              data.booking.status === "confirmed"
+                ? "xác nhận thanh toán"
+                : "hủy"
+            }. Bạn sẽ được chuyển về trang lịch sử.`,
             status: "info",
             duration: 5000,
             isClosable: true,
           });
-          setTimeout(() => navigate("/bookings/history"), 3000); // Điều hướng về lịch sử đặt vé
+          setTimeout(() => navigate("/bookings/history"), 3000);
         } else {
           setBooking(data.booking);
           setSeats(data.seats);
@@ -77,13 +80,19 @@ const CartCheckoutPage = () => {
 
     try {
       const paymentLinkRes = await new Promise((resolve) => {
-        apiService.post("/api/payments/create-payment-link", { bookingId }, (data, success) => {
-          resolve({ data, success });
-        });
+        apiService.post(
+          "/api/payments/create-payment-link",
+          { bookingId },
+          (data, success) => {
+            resolve({ data, success });
+          }
+        );
       });
 
       if (!paymentLinkRes.success) {
-        throw new Error(paymentLinkRes.data?.message || "Tạo link thanh toán thất bại");
+        throw new Error(
+          paymentLinkRes.data?.message || "Tạo link thanh toán thất bại"
+        );
       }
 
       const paymentUrl = paymentLinkRes.data?.data?.paymentLink;
@@ -110,6 +119,7 @@ const CartCheckoutPage = () => {
     apiService.put(`/api/bookings/${bookingId}/cancel`, {}, (data, success) => {
       setIsCancelling(false);
       onClose();
+
       if (success) {
         toast({
           title: "Thành công",
@@ -133,155 +143,377 @@ const CartCheckoutPage = () => {
 
   if (loading) {
     return (
-      <Box bg="#0f1117" minH="100vh" display="flex" alignItems="center" justifyContent="center">
-        <Spinner color="orange.400" size="xl" />
+      <Box bg="#050814" minH="100vh" display="flex" alignItems="center" justifyContent="center">
+        <VStack spacing={4}>
+          <Spinner color="orange.400" size="xl" thickness="4px" />
+          <Text color="gray.400">Đang tải thông tin thanh toán...</Text>
+        </VStack>
       </Box>
     );
   }
 
   if (error || !booking) {
     return (
-      <Box p={6} textAlign="center" bg="#0f1117" color="white" minH="100vh">
-        <Heading mb={4}>{error || "Không tìm thấy thông tin đặt vé."}</Heading>
-        <Button colorScheme="pink" onClick={() => navigate("/")}>
-          Quay về trang chủ
-        </Button>
+      <Box bg="#050814" minH="100vh" position="relative" overflow="hidden" py={16}>
+        <Box
+          position="absolute"
+          top="-120px"
+          left="-120px"
+          w="340px"
+          h="340px"
+          bg="orange.400"
+          opacity={0.08}
+          borderRadius="full"
+          filter="blur(120px)"
+        />
+        <Box
+          position="absolute"
+          bottom="-140px"
+          right="-120px"
+          w="380px"
+          h="380px"
+          bg="purple.500"
+          opacity={0.08}
+          borderRadius="full"
+          filter="blur(140px)"
+        />
+
+        <Container maxW="900px" position="relative" zIndex={2}>
+          <Card
+            bg="rgba(12,18,35,0.88)"
+            color="white"
+            border="1px solid rgba(255,255,255,0.08)"
+            rounded="30px"
+            boxShadow="0 18px 50px rgba(0,0,0,0.25)"
+          >
+            <CardBody p={10} textAlign="center">
+              <Heading size="md" mb={4}>
+                {error || "Không tìm thấy thông tin đặt vé."}
+              </Heading>
+              <Button
+                h="50px"
+                px={8}
+                rounded="full"
+                bg="linear-gradient(90deg, #f59e0b, #f97316)"
+                color="white"
+                onClick={() => navigate("/")}
+                _hover={{
+                  transform: "translateY(-1px)",
+                  boxShadow: "0 14px 28px rgba(249,115,22,0.28)",
+                }}
+              >
+                Quay về trang chủ
+              </Button>
+            </CardBody>
+          </Card>
+        </Container>
       </Box>
     );
   }
 
-  const { showtime_id: showtime, total_price } = booking;
+  const { total_price } = booking;
+
+  const parsedTotal =
+    typeof total_price === "object" && total_price?.$numberDecimal
+      ? parseFloat(total_price.$numberDecimal)
+      : Number(total_price || 0);
+
+  const combos = [];
+  const rawCombos = booking.combos || [];
+  if (Array.isArray(rawCombos) && rawCombos.length > 0) {
+    rawCombos.forEach((c) => {
+      const comboData = c.combo_id || c.combo || c;
+      const name =
+        comboData?.name || comboData?.title || c?.name || c?.title || "Combo";
+      const quantity = c.quantity || c.qty || c.count || 1;
+      combos.push({ name, quantity });
+    });
+  }
 
   return (
-    <Box bg="#0f1117" minH="100vh" color="white" p={6}>
-      <VStack spacing={6} align="stretch" maxW="600px" mx="auto">
-        <Heading mb={4} textAlign="center">Xác nhận và thanh toán</Heading>
-        {booking && booking.showtime_id && (
-          <VStack spacing={1} color="gray.200" bg="#1a1b23" p={4} borderRadius="lg" w="full">
-            <Heading as="h3" size="md" color="#d53f8c">Thông tin đặt vé</Heading>
-            <HStack align="start" spacing={4} w="full">
-              {/* Poster phim */}
-              {booking.showtime_id.movie_id?.poster_url && (
-                <Image
-                  src={booking.showtime_id.movie_id.poster_url}
-                  alt={booking.showtime_id.movie_id?.title || 'Poster'}
-                  boxSize={{ base: "90px", md: "120px" }}
-                  objectFit="cover"
-                  borderRadius="md"
-                />
-              )}
-              {/* Chi tiết phim và suất chiếu */}
-              <VStack align="start" spacing={1} w="full">
-                <Heading as="h4" size="sm" color="white">{booking.showtime_id.movie_id?.title}</Heading>
-                {!!(booking.showtime_id.movie_id?.genre?.length) && (
-                  <HStack spacing={2} flexWrap="wrap">
-                    {booking.showtime_id.movie_id.genre.map((g, idx) => (
-                      <Badge key={idx} colorScheme="pink" variant="subtle">{g}</Badge>
-                    ))}
-                  </HStack>
-                )}
-                {booking.showtime_id.movie_id?.duration && (
-                  <Text fontSize="sm" color="gray.400">Thời lượng: {booking.showtime_id.movie_id.duration} phút</Text>
-                )}
-                {booking.showtime_id.movie_id?.description && (
-                  <Text fontSize="sm" color="gray.400" noOfLines={3}>{booking.showtime_id.movie_id.description}</Text>
-                )}
-                <Divider borderColor="#2a2b33" my={2} />
-                <Text><strong>Mã đặt vé (BookingID):</strong> {booking.order_code || booking._id || "N/A"}</Text>
-                <Text><strong>Rạp:</strong> {booking.showtime_id.room_id?.theater_id?.name}</Text>
-                <Text><strong>Phòng chiếu:</strong> {booking.showtime_id.room_id?.name}</Text>
-                <Text>
-                  <strong>Suất chiếu:</strong> {booking.showtime_id.start_time?.vietnamFormatted || new Date(booking.showtime_id.start_time?.vietnam || booking.showtime_id.start_time).toLocaleString('vi-VN')}
-                </Text>
-                {!!seats.length && (
-                  <Text>
-                    <strong>Ghế:</strong> {seats.map(s => s.seat_id?.seat_number || s.seat_number).join(', ')}
-                  </Text>
-                )}
-                {(() => {
-                  // Extract combos from booking
-                  const combos = [];
-                  const rawCombos = booking.combos || [];
-                  if (Array.isArray(rawCombos) && rawCombos.length > 0) {
-                    rawCombos.forEach((c) => {
-                      const comboData = c.combo_id || c.combo || c;
-                      const name = comboData?.name || comboData?.title || c?.name || c?.title || "Combo";
-                      const quantity = c.quantity || c.qty || c.count || 1;
-                      combos.push({ name, quantity });
-                    });
-                  }
-                  
-                  return combos.length > 0 ? (
-                    <Box w="full">
-                      <Text><strong>Combo đã chọn:</strong></Text>
-                      <VStack align="start" spacing={1} ml={4} mt={1}>
-                        {combos.map((combo, idx) => (
-                          <Text key={idx} fontSize="sm" color="gray.300">
-                            • {combo.name} x{combo.quantity}
+    <Box bg="#050814" minH="100vh" color="white" position="relative" overflow="hidden" py={10}>
+      <Box
+        position="absolute"
+        top="-120px"
+        left="-120px"
+        w="340px"
+        h="340px"
+        bg="orange.400"
+        opacity={0.08}
+        borderRadius="full"
+        filter="blur(120px)"
+      />
+      <Box
+        position="absolute"
+        bottom="-140px"
+        right="-120px"
+        w="380px"
+        h="380px"
+        bg="purple.500"
+        opacity={0.08}
+        borderRadius="full"
+        filter="blur(140px)"
+      />
+
+      <Container maxW="1200px" position="relative" zIndex={2}>
+        <SimpleGrid columns={{ base: 1, xl: 3 }} spacing={8} alignItems="start">
+          {/* LEFT */}
+          <Box gridColumn={{ base: "auto", xl: "span 2" }}>
+            <Card
+              bg="rgba(12,18,35,0.88)"
+              border="1px solid rgba(255,255,255,0.08)"
+              rounded="30px"
+              boxShadow="0 18px 50px rgba(0,0,0,0.25)"
+            >
+              <CardBody p={{ base: 5, md: 8 }}>
+                <VStack align="stretch" spacing={6}>
+                  <VStack spacing={2} align="start">
+                    <Badge
+                      px={4}
+                      py={1.5}
+                      rounded="full"
+                      bg="linear-gradient(90deg, #fb923c, #f97316)"
+                      color="white"
+                      fontWeight="700"
+                      fontSize="0.8rem"
+                      w="fit-content"
+                    >
+                      CINEMAGO CHECKOUT
+                    </Badge>
+
+                    <Heading size="lg" color="white">
+                      Xác nhận và thanh toán
+                    </Heading>
+
+                    <Text color="gray.400" fontSize="sm">
+                      Kiểm tra lại thông tin vé trước khi tiến hành thanh toán
+                    </Text>
+                  </VStack>
+
+                  {booking?.showtime_id && (
+                    <Card
+                      bg="rgba(255,255,255,0.04)"
+                      border="1px solid rgba(255,255,255,0.06)"
+                      rounded="24px"
+                    >
+                      <CardBody p={5}>
+                        <HStack align="start" spacing={5}>
+                          {booking.showtime_id.movie_id?.poster_url && (
+                            <Image
+                              src={booking.showtime_id.movie_id.poster_url}
+                              alt={booking.showtime_id.movie_id?.title || "Poster"}
+                              boxSize={{ base: "110px", md: "140px" }}
+                              objectFit="cover"
+                              borderRadius="18px"
+                              fallbackSrc="https://via.placeholder.com/140x200"
+                            />
+                          )}
+
+                          <VStack align="start" spacing={2} flex="1">
+                            <Heading as="h3" size="md" color="white">
+                              {booking.showtime_id.movie_id?.title}
+                            </Heading>
+
+                            {!!booking.showtime_id.movie_id?.genre?.length && (
+                              <HStack spacing={2} flexWrap="wrap">
+                                {booking.showtime_id.movie_id.genre.map((g, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    px={3}
+                                    py={1}
+                                    rounded="full"
+                                    bg="whiteAlpha.200"
+                                    color="white"
+                                    fontWeight="500"
+                                  >
+                                    {g}
+                                  </Badge>
+                                ))}
+                              </HStack>
+                            )}
+
+                            {booking.showtime_id.movie_id?.duration && (
+                              <Text fontSize="sm" color="gray.400">
+                                Thời lượng: {booking.showtime_id.movie_id.duration} phút
+                              </Text>
+                            )}
+
+                            {booking.showtime_id.movie_id?.description && (
+                              <Text fontSize="sm" color="gray.400" noOfLines={3}>
+                                {booking.showtime_id.movie_id.description}
+                              </Text>
+                            )}
+                          </VStack>
+                        </HStack>
+                      </CardBody>
+                    </Card>
+                  )}
+
+                  <Card
+                    bg="rgba(255,255,255,0.04)"
+                    border="1px solid rgba(255,255,255,0.06)"
+                    rounded="24px"
+                  >
+                    <CardBody p={5}>
+                      <VStack align="stretch" spacing={3}>
+                        <Heading as="h4" size="sm" color="orange.300">
+                          Thông tin đặt vé
+                        </Heading>
+
+                        <Divider borderColor="whiteAlpha.200" />
+
+                        <Text color="gray.200">
+                          <strong>Mã đặt vé:</strong> {booking.order_code || booking._id || "N/A"}
+                        </Text>
+
+                        <Text color="gray.200">
+                          <strong>Rạp:</strong> {booking.showtime_id.room_id?.theater_id?.name}
+                        </Text>
+
+                        <Text color="gray.200">
+                          <strong>Phòng chiếu:</strong> {booking.showtime_id.room_id?.name}
+                        </Text>
+
+                        <Text color="gray.200">
+                          <strong>Suất chiếu:</strong>{" "}
+                          {booking.showtime_id.start_time?.vietnamFormatted ||
+                            new Date(
+                              booking.showtime_id.start_time?.vietnam ||
+                                booking.showtime_id.start_time
+                            ).toLocaleString("vi-VN")}
+                        </Text>
+
+                        {!!seats.length && (
+                          <Text color="gray.200">
+                            <strong>Ghế:</strong>{" "}
+                            {seats
+                              .map((s) => s.seat_id?.seat_number || s.seat_number)
+                              .join(", ")}
                           </Text>
-                        ))}
+                        )}
+
+                        {combos.length > 0 && (
+                          <Box>
+                            <Text color="gray.200" mb={1}>
+                              <strong>Combo đã chọn:</strong>
+                            </Text>
+                            <VStack align="start" spacing={1} ml={3}>
+                              {combos.map((combo, idx) => (
+                                <Text key={idx} fontSize="sm" color="gray.300">
+                                  • {combo.name} x{combo.quantity}
+                                </Text>
+                              ))}
+                            </VStack>
+                          </Box>
+                        )}
                       </VStack>
-                    </Box>
-                  ) : null;
-                })()}
-              </VStack>
-            </HStack>
-          </VStack>
-        )}
-        
-        <Flex justify="space-between" align="center" bg="#1a1b23" p={5} borderRadius="lg">
-          <Text fontSize="lg" fontWeight="bold">Tổng cộng</Text>
-          <Text fontSize="2xl" fontWeight="bold" color="orange.300">{parseFloat(total_price.$numberDecimal).toLocaleString("vi-VN")}đ</Text>
-        </Flex>
+                    </CardBody>
+                  </Card>
+                </VStack>
+              </CardBody>
+            </Card>
+          </Box>
 
-        {error && (
-          <Text color="red.400" textAlign="center">{error}</Text>
-        )}
+          {/* RIGHT */}
+          <Box>
+            <Card
+              bg="rgba(12,18,35,0.88)"
+              border="1px solid rgba(255,255,255,0.08)"
+              rounded="30px"
+              boxShadow="0 18px 50px rgba(0,0,0,0.25)"
+              position={{ base: "static", xl: "sticky" }}
+              top="24px"
+            >
+              <CardBody p={{ base: 5, md: 6 }}>
+                <VStack align="stretch" spacing={5}>
+                  <Heading size="md" color="white">
+                    Tóm tắt thanh toán
+                  </Heading>
 
-        <VStack spacing={4} mt={4}>
-          <Button
-            bg="#d53f8c"
-            color="white"
-            size="lg"
-            w="full"
-            onClick={handleCheckout}
-            isLoading={isProcessingPayment}
-            _hover={{ bg: "#b83280" }}
-            spinner={<Spinner size="md" />}
-          >
-            {isProcessingPayment ? "Đang xử lý..." : "Thanh toán với PayOS"}
-          </Button>
-          <Button
-            variant="outline"
-            colorScheme="red"
-            size="lg"
-            w="full"
-            onClick={onOpen}
-            isLoading={isCancelling}
-          >
-            Hủy đặt vé
-          </Button>
-        </VStack>
-      </VStack>
+                  <Divider borderColor="whiteAlpha.200" />
+
+                  <Flex justify="space-between" align="center">
+                    <Text color="gray.400">Tổng thanh toán</Text>
+                    <Text fontSize="2xl" fontWeight="800" color="orange.300">
+                      {parsedTotal.toLocaleString("vi-VN")}đ
+                    </Text>
+                  </Flex>
+
+                  {error && <Text color="red.400">{error}</Text>}
+
+                  <VStack spacing={4} mt={2}>
+                    <Button
+                      h="54px"
+                      w="full"
+                      rounded="full"
+                      bg="linear-gradient(90deg, #f59e0b, #f97316)"
+                      color="white"
+                      onClick={handleCheckout}
+                      isLoading={isProcessingPayment}
+                      _hover={{
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 18px 36px rgba(249,115,22,0.30)",
+                      }}
+                      spinner={<Spinner size="md" />}
+                    >
+                      {isProcessingPayment ? "Đang xử lý..." : "Thanh toán ngay"}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      borderColor="red.400"
+                      color="red.300"
+                      h="54px"
+                      w="full"
+                      rounded="full"
+                      onClick={onOpen}
+                      isLoading={isCancelling}
+                      _hover={{
+                        bg: "rgba(239,68,68,0.10)",
+                        borderColor: "red.300",
+                      }}
+                    >
+                      Hủy đặt vé
+                    </Button>
+                  </VStack>
+                </VStack>
+              </CardBody>
+            </Card>
+          </Box>
+        </SimpleGrid>
+      </Container>
 
       <AlertDialog
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
         onClose={onClose}
       >
-        <AlertDialogOverlay>
-          <AlertDialogContent bg="#1a1b23" color="white">
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+        <AlertDialogOverlay bg="blackAlpha.800" backdropFilter="blur(4px)">
+          <AlertDialogContent
+            bg="rgba(12,18,35,0.96)"
+            color="white"
+            border="1px solid rgba(255,255,255,0.08)"
+            rounded="24px"
+          >
+            <AlertDialogHeader fontSize="lg" fontWeight="bold" color="orange.300">
               Xác nhận hủy
             </AlertDialogHeader>
-            <AlertDialogBody>
+
+            <AlertDialogBody color="gray.300">
               Bạn có chắc chắn muốn hủy đặt vé này không? Hành động này không thể hoàn tác.
             </AlertDialogBody>
+
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose} colorScheme="gray">
+              <Button ref={cancelRef} onClick={onClose} bg="gray.700" _hover={{ bg: "gray.600" }}>
                 Không
               </Button>
-              <Button colorScheme="red" onClick={handleCancelBooking} ml={3} isLoading={isCancelling}>
+              <Button
+                colorScheme="red"
+                onClick={handleCancelBooking}
+                ml={3}
+                isLoading={isCancelling}
+                rounded="full"
+              >
                 Hủy đặt vé
               </Button>
             </AlertDialogFooter>
