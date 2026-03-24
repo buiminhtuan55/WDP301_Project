@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import { getCurrentVietnamTime } from "../utils/timezone.js";
 import { signAccessToken } from "../utils/jwt.js";
-import { sendResetLinkEmail } from "../utils/email.js";
+import { sendResetLinkEmail, sendVerificationEmail } from "../utils/email.js";
 import { logAction } from "../utils/logger.js";
 
 export const registerStaff = async (req, res, next) => {
@@ -111,20 +111,42 @@ export const registerCustomer = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Tạo verification token (JWT, 30 phút)
+    const verificationToken = jwt.sign(
+      { email, type: "email_verification" },
+      process.env.JWT_SECRET,
+      { expiresIn: "30m" }
+    );
+
     const newCustomer = await User.create({ 
       username, 
       password: hashedPassword, 
       email,
-      full_name: null, // Có thể cập nhật sau
-      phone: null, // Có thể cập nhật sau
-      date_of_birth: null, // Có thể cập nhật sau
-      role: "customer"
+      full_name: null,
+      phone: null,
+      date_of_birth: null,
+      role: "customer",
+      isVerified: false,
+      verificationToken,
+      verificationTokenExpires: new Date(Date.now() + 30 * 60 * 1000)
     });
 
-    // Ghi log hành động tự đăng ký (người thực hiện là chính user mới)
+    // Ghi log hành động tự đăng ký
     await logAction(newCustomer._id, 'User', newCustomer._id, 'document', null, newCustomer);
 
-    res.status(201).json({ message: "Tạo tài khoản khách hàng thành công" });
+    // Gửi email xác thực
+    const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+    try {
+      await sendVerificationEmail(email, verificationLink, username);
+    } catch (emailErr) {
+      console.error('Error sending verification email:', emailErr);
+    }
+
+    res.status(201).json({ 
+      message: "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
+      needVerification: true
+    });
   } catch (error) {
     next(error);
   }
@@ -140,6 +162,14 @@ export const loginCustomer = async (req, res, next) => {
     // Chỉ cho phép customer đăng nhập qua cổng customer
     if (user.role !== "customer") {
       return res.status(403).json({ message: "Vui lòng sử dụng cổng đăng nhập nhân viên" });
+    }
+    // Chặn tài khoản chưa xác thực email
+    if (!user.isVerified) {
+      return res.status(403).json({ 
+        message: "Tài khoản chưa được xác thực email. Vui lòng kiểm tra hộp thư của bạn.",
+        needVerification: true,
+        email: user.email
+      });
     }
     // Chặn tài khoản không hoạt động
     if (user.status && user.status !== "active") {
@@ -243,6 +273,14 @@ export const updateProfile = async (req, res, next) => {
       const existingUser = await User.findOne({ email, _id: { $ne: userId } });
       if (existingUser) {
         return res.status(400).json({ message: "Email đã được sử dụng bởi tài khoản khác" });
+      }
+    }
+
+    // Validate SĐT Việt Nam
+    if (phone !== undefined && phone !== null && phone.trim() !== '') {
+      const vnPhoneRegex = /^(0[35789])[0-9]{8}$/;
+      if (!vnPhoneRegex.test(phone.trim())) {
+        return res.status(400).json({ message: "SĐT không hợp lệ. Vui lòng nhập SĐT Việt Nam 10 số (VD: 0912345678)" });
       }
     }
 
@@ -710,6 +748,105 @@ export const socialLoginCallback = (req, res) => {
 // Hàm này chỉ để chuyển hướng, không cần logic phức tạp
 export const redirectToSocialAuth = (req, res, next) => {
   // Passport sẽ tự động xử lý việc chuyển hướng
+};
+
+// Xác thực email qua link
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ message: "Token xác thực không được cung cấp" });
+    }
+
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(400).json({ message: "Link xác thực không hợp lệ hoặc đã hết hạn" });
+    }
+
+    if (payload.type !== "email_verification" || !payload.email) {
+      return res.status(400).json({ message: "Token không hợp lệ" });
+    }
+
+    // Tìm user bằng email trước
+    const user = await User.findOne({ email: payload.email });
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy tài khoản" });
+    }
+
+    // Nếu đã xác thực rồi thì trả về thành công
+    if (user.isVerified) {
+      return res.status(200).json({ message: "Tài khoản đã được xác thực trước đó", alreadyVerified: true });
+    }
+
+    // Kiểm tra token có khớp không
+    if (user.verificationToken !== token) {
+      return res.status(400).json({ message: "Link xác thực không hợp lệ hoặc đã được sử dụng. Vui lòng yêu cầu gửi lại email." });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: "Xác thực email thành công! Bạn có thể đăng nhập ngay bây giờ." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Gửi lại email xác thực
+export const resendVerificationEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email là bắt buộc" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(200).json({ message: "Nếu email tồn tại, chúng tôi đã gửi lại email xác thực" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "Tài khoản đã được xác thực" });
+    }
+
+    // Rate limit: chỉ cho gửi lại sau khi token cũ hết hạn hoặc 2 phút
+    const now = new Date();
+    if (user.verificationTokenExpires && user.verificationTokenExpires > now) {
+      const timeSinceCreated = now.getTime() - (user.verificationTokenExpires.getTime() - 30 * 60 * 1000);
+      if (timeSinceCreated < 2 * 60 * 1000) { // 2 phút
+        const waitSeconds = Math.ceil((2 * 60 * 1000 - timeSinceCreated) / 1000);
+        return res.status(429).json({ message: `Vui lòng đợi ${waitSeconds} giây trước khi gửi lại` });
+      }
+    }
+
+    // Tạo token mới
+    const verificationToken = jwt.sign(
+      { email: user.email, type: "email_verification" },
+      process.env.JWT_SECRET,
+      { expiresIn: "30m" }
+    );
+
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpires = new Date(Date.now() + 30 * 60 * 1000);
+    await user.save();
+
+    const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+    try {
+      await sendVerificationEmail(user.email, verificationLink, user.username);
+    } catch (emailErr) {
+      console.error('Error resending verification email:', emailErr);
+    }
+
+    return res.status(200).json({ message: "Đã gửi lại email xác thực. Vui lòng kiểm tra hộp thư." });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const updateUserStatus = async (req, res, next) => {

@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({})
+  const [phoneError, setPhoneError] = useState('')
   const [showChangePwd, setShowChangePwd] = useState(false)
   const [currentPwd, setCurrentPwd] = useState("")
   const [newPwd, setNewPwd] = useState("")
@@ -68,7 +69,31 @@ export default function ProfilePage() {
     return () => { isMounted = false }
   }, [])
 
+  // Validate SĐT Việt Nam: 10 số, bắt đầu bằng 03/05/07/08/09
+  const validatePhone = (phone) => {
+    if (!phone || phone.trim() === '') return '' // Không bắt buộc
+    const vnPhoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/
+    if (!vnPhoneRegex.test(phone.trim())) {
+      return 'SĐT không hợp lệ. Vui lòng nhập SĐT Việt Nam (VD: 0912345678)'
+    }
+    return ''
+  }
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.replace(/[^0-9]/g, '') // Chỉ cho nhập số
+    setForm({ ...form, phone: value })
+    setPhoneError(validatePhone(value))
+  }
+
   const handleUpdate = () => {
+    // Validate phone trước khi gửi
+    const phoneErr = validatePhone(form.phone)
+    if (phoneErr) {
+      setPhoneError(phoneErr)
+      toast({ title: phoneErr, status: 'warning', duration: 3000 })
+      return
+    }
+
     const updatePayload = {
       fullName: form.fullName,
       phone: form.phone,
@@ -134,9 +159,17 @@ export default function ProfilePage() {
                   <FormLabel color="white">Họ và tên</FormLabel>
                   <Input bg="#0f1720" color="#ffffff" value={form.fullName || ''} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
                 </FormControl>
-                <FormControl>
+                <FormControl isInvalid={!!phoneError}>
                   <FormLabel color="white">Số điện thoại</FormLabel>
-                  <Input bg="#0f1720" color="#ffffff" value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                  <Input
+                    bg="#0f1720"
+                    color="#ffffff"
+                    value={form.phone || ''}
+                    onChange={handlePhoneChange}
+                    placeholder="VD: 0912345678"
+                    maxLength={10}
+                  />
+                  {phoneError && <Text mt={1} fontSize="sm" color="red.300">{phoneError}</Text>}
                 </FormControl>
                 <FormControl>
                   <FormLabel color="white">Ngày sinh</FormLabel>

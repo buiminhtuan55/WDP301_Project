@@ -85,13 +85,40 @@ const Login = () => {
             navigate("/")
             setTimeout(() => window.location.reload(), 0)
           } else {
-            toast({
-              title: "Lỗi đăng nhập",
-              description: response?.message || "Đăng nhập thất bại",
-              status: "error",
-              duration: 5000,
-              isClosable: true,
-            })
+            if (response?.needVerification) {
+              toast({
+                title: "Tài khoản chưa xác thực",
+                description: response?.message || "Vui lòng kiểm tra email để xác thực tài khoản.",
+                status: "warning",
+                duration: 8000,
+                isClosable: true,
+              })
+              // Tự động gửi lại email xác thực
+              if (response?.email) {
+                fetch(`${backendUrl}/resend-verification`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email: response.email }),
+                }).then(res => res.json()).then(data => {
+                  if (data?.message) {
+                    toast({
+                      title: data.message,
+                      status: "info",
+                      duration: 5000,
+                      isClosable: true,
+                    })
+                  }
+                }).catch(() => {})
+              }
+            } else {
+              toast({
+                title: "Lỗi đăng nhập",
+                description: response?.message || "Đăng nhập thất bại",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+              })
+            }
           }
         }
       )
