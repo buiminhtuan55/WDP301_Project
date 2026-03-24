@@ -34,6 +34,10 @@ import showtimeRoutes from "./routes/showtime.routes.js";
 // import "./cron/scheduler.js";
 import updateShowtimeStatus from "./cron/showtime.cron.js";
 
+// ===== AI Features =====
+import aiRoutes from "./routes/ai.routes.js";
+// ===== END AI Features =====
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -78,6 +82,10 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/showtimes", showtimeRoutes);
 app.use("/api/combos", comboRoutes);
 app.use("/api/combos", publicComboRoutes);
+
+// ===== AI Routes =====
+app.use("/api/ai", aiRoutes);
+// ===== END AI Routes =====
 
 app.use(errorHandler);
 

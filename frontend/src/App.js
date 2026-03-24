@@ -58,6 +58,10 @@ import StaffPaymentFailedPage from "./pages/staff/StaffPaymentFailedPage";
 import StaffPaymentSuccessPage from "./pages/staff/StaffPaymentSuccessPage";
 import TicketSeatSelectPage from "./pages/staff/TicketSeatSelectPage";
 
+// ===== AI Components =====
+import Chatbot from "./components/Chatbot";
+// ===== END AI Components =====
+
 function AppContent() {
   const location = useLocation();
   const [shouldHideHeaderFooter, setShouldHideHeaderFooter] = useState(false);
@@ -165,6 +169,9 @@ function AppContent() {
       </Box>
 
       {!shouldHideHeaderFooter && <Footer />}
+      
+      {/* Chatbot - Hiển thị trên tất cả các trang (trừ admin/staff pages) */}
+      {!shouldHideHeaderFooter && <Chatbot />}
     </Box>
   );
 }
