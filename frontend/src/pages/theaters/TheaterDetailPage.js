@@ -16,13 +16,12 @@ import {
   Flex,
   Divider,
   Grid,
+  Container,
 } from "@chakra-ui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import apiService from "../../services/apiService";
-import { format, parseISO, startOfToday } from "date-fns";
-import { vi } from "date-fns/locale";
-import { CalendarIcon, TimeIcon } from "@chakra-ui/icons";
+import { CalendarIcon, TimeIcon, ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 const TheaterDetailPage = () => {
   const { id } = useParams();
@@ -32,13 +31,11 @@ const TheaterDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Load song song theaters và showtimes
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
     setError("");
 
-    // Load theaters
     const theaterPromise = new Promise((resolve) => {
       apiService.post(
         "/api/public/theaters/list",
@@ -46,9 +43,7 @@ const TheaterDetailPage = () => {
         (data, success) => {
           if (!isMounted) return;
           if (success) {
-            const foundTheater = data.list.find(
-              (t) => (t.id || t._id) === id
-            );
+            const foundTheater = data.list.find((t) => (t.id || t._id) === id);
             if (foundTheater) {
               setTheater(foundTheater);
             } else {
@@ -62,7 +57,6 @@ const TheaterDetailPage = () => {
       );
     });
 
-    // Load showtimes (giống HomePage)
     const showtimesPromise = new Promise((resolve) => {
       apiService.getPublic("/api/showtimes", {}, (data, success) => {
         if (!isMounted) return;
@@ -73,11 +67,8 @@ const TheaterDetailPage = () => {
       });
     });
 
-    // Chờ cả hai hoàn thành
     Promise.all([theaterPromise, showtimesPromise]).finally(() => {
-      if (isMounted) {
-        setLoading(false);
-      }
+      if (isMounted) setLoading(false);
     });
 
     return () => {
@@ -85,78 +76,86 @@ const TheaterDetailPage = () => {
     };
   }, [id]);
 
-  // Kiểm tra xem một ngày có phải hôm nay không (giống HomePage)
   const isToday = (dateString) => {
     if (!dateString) return false;
-    const today = new Date();
-    const vietnamToday = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
 
-    // Parse date từ vietnamFormatted string (format: "09:30:00 14/10/2025")
+    const today = new Date();
+    const vietnamToday = new Date(
+      today.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })
+    );
+
     const dateMatch = dateString.match(/(\d{2}\/\d{2}\/\d{4})/);
     if (!dateMatch) return false;
 
-    const [day, month, year] = dateMatch[1].split('/');
+    const [day, month, year] = dateMatch[1].split("/");
     const showtimeDate = new Date(year, month - 1, day);
 
     return showtimeDate.toDateString() === vietnamToday.toDateString();
   };
 
-  // Lọc showtimes theo rạp và lấy phim
   const theaterShowtimes = useMemo(() => {
     if (!allShowtimes.length || !id) return [];
-    
+
     return allShowtimes.filter((st) => {
-      if (!st || st.status !== 'active') return false;
-      
-      // Lấy theater_id từ room_id
-      const theaterId = st.room_id?.theater_id?._id || st.room_id?.theater_id || st.room_id?.theater_id?.id;
-      const theaterIdStr = typeof theaterId === 'string' ? theaterId : (theaterId?._id || theaterId?.id);
-      
+      if (!st || st.status !== "active") return false;
+
+      const theaterId =
+        st.room_id?.theater_id?._id ||
+        st.room_id?.theater_id ||
+        st.room_id?.theater_id?.id;
+
+      const theaterIdStr =
+        typeof theaterId === "string"
+          ? theaterId
+          : theaterId?._id || theaterId?.id;
+
       return theaterIdStr === id || theaterId === id;
     });
   }, [allShowtimes, id]);
 
-  // Lấy showtimes cho một phim cụ thể trong ngày hôm nay (giống HomePage)
   const getMovieShowtimes = (movieId) => {
     const movieShowtimes = theaterShowtimes.filter((st) => {
-      if (!st || st.status !== 'active') return false;
-      
-      // Kiểm tra movie_id
+      if (!st || st.status !== "active") return false;
+
       const movieIdMatches = (() => {
         const movieField = st.movie_id;
         if (!movieField) return false;
-        if (typeof movieField === 'string') return movieField === movieId;
-        if (typeof movieField === 'object' && movieField._id) return movieField._id === movieId;
+        if (typeof movieField === "string") return movieField === movieId;
+        if (typeof movieField === "object" && movieField._id) {
+          return movieField._id === movieId;
+        }
         return false;
       })();
 
       const vietnamFormatted = st?.start_time?.vietnamFormatted;
-      return movieIdMatches && typeof vietnamFormatted === 'string' && isToday(vietnamFormatted);
+      return (
+        movieIdMatches &&
+        typeof vietnamFormatted === "string" &&
+        isToday(vietnamFormatted)
+      );
     });
 
-    // Extract time từ vietnamFormatted string và loại bỏ trùng lặp
-    const allTimes = movieShowtimes.map((st) => {
-      const vf = st?.start_time?.vietnamFormatted || '';
-      const timeMatch = vf.match(/^(\d{2}:\d{2})/);
-      return timeMatch ? timeMatch[1] : (vf.split(' ')[0] || '');
-    }).filter(Boolean);
+    const allTimes = movieShowtimes
+      .map((st) => {
+        const vf = st?.start_time?.vietnamFormatted || "";
+        const timeMatch = vf.match(/^(\d{2}:\d{2})/);
+        return timeMatch ? timeMatch[1] : vf.split(" ")[0] || "";
+      })
+      .filter(Boolean);
 
-    // Loại bỏ trùng lặp và sắp xếp
-    const uniqueTimes = [...new Set(allTimes)].sort();
-    return uniqueTimes;
+    return [...new Set(allTimes)].sort();
   };
 
-  // Lấy danh sách phim duy nhất từ showtimes
   const movies = useMemo(() => {
     const movieMap = new Map();
-    
+
     theaterShowtimes.forEach((st) => {
       const movie = st.movie_id;
       if (!movie) return;
-      
+
       const movieId = movie._id || movie.id;
       if (!movieId || movieMap.has(movieId)) return;
-      
+
       movieMap.set(movieId, {
         _id: movieId,
         title: movie.title,
@@ -166,185 +165,339 @@ const TheaterDetailPage = () => {
         genre: movie.genre || [],
       });
     });
-    
+
     return Array.from(movieMap.values());
   }, [theaterShowtimes]);
-
-  if (loading) {
-    return (
-      <Center minH="80vh">
-        <Spinner size="xl" color="orange.400" />
-      </Center>
-    );
-  }
-
-  if (error) {
-    return (
-      <Center minH="80vh">
-        <Alert status="error" maxW="md">
-          <AlertIcon />
-          {error}
-        </Alert>
-      </Center>
-    );
-  }
-
-  if (!theater) {
-    return (
-      <Center minH="80vh">
-        <Text color="gray.400">Không tìm thấy rạp chiếu</Text>
-      </Center>
-    );
-  }
 
   const formatDuration = (minutes) => {
     if (!minutes && minutes !== 0) return "";
     return `${minutes} phút`;
   };
 
-  return (
-    <Box bg="gray.900" color="white" minH="calc(100vh - 140px)" py={8}>
-      <Box maxW="1400px" mx="auto" px={4}>
-        {/* Header */}
-        <VStack align="stretch" mb={8} spacing={4}>
-          <Button
-            variant="ghost"
-            colorScheme="orange"
-            onClick={() => navigate("/theaters")}
-            alignSelf="flex-start"
+  if (loading) {
+    return (
+      <Box minH="100vh" bg="#050814">
+        <Center minH="100vh">
+          <VStack spacing={4}>
+            <Spinner size="xl" color="orange.400" thickness="4px" />
+            <Text color="gray.400">Đang tải thông tin rạp...</Text>
+          </VStack>
+        </Center>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box minH="100vh" bg="#050814">
+        <Center minH="100vh" px={4}>
+          <Alert
+            status="error"
+            maxW="lg"
+            rounded="2xl"
+            bg="rgba(255,255,255,0.06)"
+            color="white"
+            border="1px solid rgba(255,255,255,0.08)"
           >
-            ← Quay lại danh sách rạp
-          </Button>
-          <Heading color="orange.400">{theater.name}</Heading>
-          <Text color="gray.300" fontSize="lg">
-            📍 {theater.location || "Chưa cập nhật địa chỉ"}
+            <AlertIcon />
+            {error}
+          </Alert>
+        </Center>
+      </Box>
+    );
+  }
+
+  if (!theater) {
+    return (
+      <Box minH="100vh" bg="#050814">
+        <Center minH="100vh">
+          <Text color="gray.400">Không tìm thấy rạp chiếu</Text>
+        </Center>
+      </Box>
+    );
+  }
+
+  return (
+    <Box minH="100vh" bg="#050814" position="relative" overflow="hidden">
+      {/* Glow background */}
+      <Box
+        position="absolute"
+        top="-120px"
+        left="-120px"
+        w="340px"
+        h="340px"
+        bg="orange.400"
+        opacity={0.08}
+        borderRadius="full"
+        filter="blur(120px)"
+      />
+      <Box
+        position="absolute"
+        bottom="-140px"
+        right="-120px"
+        w="380px"
+        h="380px"
+        bg="purple.500"
+        opacity={0.08}
+        borderRadius="full"
+        filter="blur(140px)"
+      />
+
+      {/* Hero */}
+      <Box
+        position="relative"
+        py={{ base: 12, md: 18 }}
+        borderBottom="1px solid rgba(255,255,255,0.06)"
+        bg="linear-gradient(180deg, rgba(8,12,28,0.96), rgba(5,8,20,0.88))"
+      >
+        <Container maxW="1400px" position="relative" zIndex={2}>
+          <VStack align="start" spacing={5}>
+            <Button
+              leftIcon={<ChevronLeftIcon />}
+              variant="ghost"
+              color="orange.300"
+              _hover={{ bg: "whiteAlpha.100", color: "orange.200" }}
+              onClick={() => navigate("/theaters")}
+              px={0}
+            >
+              Quay lại danh sách rạp
+            </Button>
+
+            <Badge
+              px={4}
+              py={1.5}
+              borderRadius="full"
+              bg="linear-gradient(90deg, #fb923c, #f97316)"
+              color="white"
+              fontSize="0.82rem"
+              fontWeight="700"
+            >
+              CINEMAGO THEATER
+            </Badge>
+
+            <Heading
+              color="white"
+              fontSize={{ base: "3xl", md: "5xl" }}
+              lineHeight="1.05"
+              maxW="900px"
+            >
+              {theater.name}
+            </Heading>
+
+            <Text color="gray.300" fontSize={{ base: "md", md: "lg" }}>
+              📍 {theater.location || "Chưa cập nhật địa chỉ"}
+            </Text>
+
+            <HStack spacing={4} flexWrap="wrap">
+              <Badge
+                px={4}
+                py={2}
+                rounded="full"
+                bg="whiteAlpha.160"
+                color="white"
+                fontSize="sm"
+              >
+                {theater.rooms_count || 0} phòng chiếu
+              </Badge>
+              <Badge
+                px={4}
+                py={2}
+                rounded="full"
+                bg="whiteAlpha.160"
+                color="white"
+                fontSize="sm"
+              >
+                {theater.total_seats || 0} ghế
+              </Badge>
+              <Badge
+                px={4}
+                py={2}
+                rounded="full"
+                colorScheme="green"
+                fontSize="sm"
+              >
+                Đang hoạt động
+              </Badge>
+            </HStack>
+          </VStack>
+        </Container>
+      </Box>
+
+      <Container maxW="1400px" position="relative" zIndex={2} py={10}>
+        <VStack align="start" spacing={2} mb={8}>
+          <Heading size="xl" color="white">
+            Phim đang chiếu tại rạp
+          </Heading>
+          <Text color="gray.400">
+            Hiện có {movies.length} phim đang có suất chiếu tại {theater.name}
           </Text>
-          <HStack spacing={4}>
-            <Badge colorScheme="blue" fontSize="sm" px={3} py={1}>
-              {theater.rooms_count || 0} phòng chiếu
-            </Badge>
-            <Badge colorScheme="green" fontSize="sm" px={3} py={1}>
-              {theater.total_seats || 0} ghế
-            </Badge>
-          </HStack>
         </VStack>
 
-        {/* Danh sách phim - giống HomePage */}
-        <Heading as="h2" size="xl" textAlign="center" mb={6} color="orange.400">
-          Phim đang chiếu tại {theater.name}
-        </Heading>
+        {movies.length === 0 ? (
+          <Center py={20}>
+            <VStack spacing={3}>
+              <Text color="gray.300" fontSize="lg">
+                Không có phim nào đang chiếu tại rạp này
+              </Text>
+              <Text color="gray.500" fontSize="sm">
+                Vui lòng quay lại sau để xem lịch chiếu mới
+              </Text>
+            </VStack>
+          </Center>
+        ) : (
+          <Grid
+            templateColumns={{
+              base: "1fr",
+              md: "repeat(2, 1fr)",
+              xl: "repeat(3, 1fr)",
+            }}
+            gap={7}
+          >
+            {movies.map((movie) => {
+              const movieShowtimes = getMovieShowtimes(movie._id);
 
-        {loading && (
-          <Box textAlign="center" py={10}>
-            <Spinner color="orange.400" size="xl" />
-            <Text color="gray.300" mt={4}>Đang tải danh sách phim...</Text>
-          </Box>
-        )}
+              return (
+                <Card
+                  key={movie._id}
+                  bg="rgba(12,18,35,0.88)"
+                  color="white"
+                  rounded="28px"
+                  overflow="hidden"
+                  border="1px solid rgba(255,255,255,0.08)"
+                  boxShadow="0 18px 50px rgba(0,0,0,0.25)"
+                  transition="all 0.3s ease"
+                  _hover={{
+                    transform: "translateY(-8px)",
+                    borderColor: "rgba(251,146,60,0.45)",
+                    boxShadow: "0 26px 60px rgba(0,0,0,0.38)",
+                  }}
+                >
+                  <Box position="relative" overflow="hidden">
+                    <Image
+                      src={movie.poster_url}
+                      alt={movie.title}
+                      h="420px"
+                      w="100%"
+                      objectFit="cover"
+                      fallbackSrc="https://via.placeholder.com/300x450?text=No+Image"
+                    />
 
-        {!!error && !loading && (
-          <Text textAlign="center" color="red.400" py={10}>{error}</Text>
-        )}
+                    <Box
+                      position="absolute"
+                      inset="0"
+                      bg="linear-gradient(to top, rgba(5,8,20,0.92), rgba(5,8,20,0.10) 45%, rgba(5,8,20,0.0))"
+                    />
 
-        {!loading && !error && (
-          <>
-            {movies.length === 0 ? (
-              <Center py={20}>
-                <Text color="gray.400" fontSize="lg">
-                  Không có phim nào đang chiếu tại rạp này
-                </Text>
-              </Center>
-            ) : (
-              <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} gap={6}>
-                {movies.map((movie) => {
-                  const movieShowtimes = getMovieShowtimes(movie._id);
-                  return (
-                    <Card key={movie._id} bg="gray.800" color="white" borderRadius="md" border="1px solid" borderColor="gray.700">
-                      <Box position="relative">
-                        <Image
-                          src={movie.poster_url}
-                          alt={movie.title}
-                          borderTopRadius="md"
-                          height="350px"
-                          width="100%"
-                          objectFit="contain"
-                          fallbackSrc="https://via.placeholder.com/300x450?text=No+Image"
-                        />
-                      </Box>
+                    <Box position="absolute" left={5} bottom={5} right={5}>
+                      <Heading size="md" color="white" noOfLines={2}>
+                        {movie.title}
+                      </Heading>
+                      <Text mt={2} fontSize="sm" color="gray.300" noOfLines={1}>
+                        {(movie.genre || []).join(" • ")}
+                      </Text>
+                    </Box>
+                  </Box>
 
-                      <CardBody>
-                        <VStack align="start" spacing={3}>
-                          <Heading size="md" color="orange.400">{movie.title}</Heading>
-                          <Text fontSize="sm" color="gray.300">
-                            {(movie.genre || []).join(", ")}
+                  <CardBody p={5}>
+                    <VStack align="stretch" spacing={4}>
+                      <HStack justify="space-between" color="gray.300">
+                        <HStack spacing={2}>
+                          <TimeIcon color="orange.300" />
+                          <Text fontSize="sm">{formatDuration(movie.duration)}</Text>
+                        </HStack>
+
+                        <Badge
+                          rounded="full"
+                          px={3}
+                          py={1}
+                          bg="whiteAlpha.100"
+                          color="gray.200"
+                          fontWeight="500"
+                        >
+                          Đang chiếu
+                        </Badge>
+                      </HStack>
+
+                      <Divider borderColor="whiteAlpha.200" />
+
+                      <VStack align="start" spacing={3} width="100%">
+                        <HStack color="gray.300" spacing={2}>
+                          <CalendarIcon color="orange.300" />
+                          <Text fontSize="sm" fontWeight="600">
+                            Suất chiếu hôm nay
                           </Text>
-                          <HStack spacing={2} color="gray.300">
-                            <TimeIcon />
-                            <Text fontSize="sm">{formatDuration(movie.duration)}</Text>
-                          </HStack>
+                        </HStack>
 
-                          <Divider borderColor="gray.600" />
+                        <Flex wrap="wrap" gap={2}>
+                          {movieShowtimes.length > 0 ? (
+                            movieShowtimes.map((time) => (
+                              <Button
+                                key={time}
+                                size="sm"
+                                h="38px"
+                                px={4}
+                                rounded="full"
+                                bg="whiteAlpha.120"
+                                color="white"
+                                border="1px solid rgba(255,255,255,0.10)"
+                                _hover={{
+                                  bg: "orange.400",
+                                  borderColor: "orange.400",
+                                }}
+                                onClick={() => {
+                                  const matchingShowtime = theaterShowtimes.find((st) => {
+                                    const vf = st?.start_time?.vietnamFormatted || "";
+                                    const timeMatch = vf.match(/^(\d{2}:\d{2})/);
+                                    const showtimeTime = timeMatch ? timeMatch[1] : "";
+                                    return (
+                                      showtimeTime === time &&
+                                      st.movie_id?._id === movie._id &&
+                                      isToday(vf)
+                                    );
+                                  });
 
-                          <VStack align="start" spacing={2} width="100%">
-                            <HStack color="gray.300" spacing={2}>
-                              <CalendarIcon />
-                              <Text fontSize="sm">Suất chiếu hôm nay:</Text>
-                            </HStack>
-                            <HStack wrap="wrap" spacing={2}>
-                              {movieShowtimes.length > 0 ? (
-                                movieShowtimes.map((time) => (
-                                  <Button
-                                    key={time}
-                                    size="sm"
-                                    bg="orange.400"
-                                    color="white"
-                                    _hover={{ bg: "orange.500" }}
-                                    onClick={() => {
-                                      // Tìm showtime tương ứng với time này
-                                      const matchingShowtime = theaterShowtimes.find((st) => {
-                                        const vf = st?.start_time?.vietnamFormatted || '';
-                                        const timeMatch = vf.match(/^(\d{2}:\d{2})/);
-                                        const showtimeTime = timeMatch ? timeMatch[1] : '';
-                                        return showtimeTime === time && 
-                                               st.movie_id?._id === movie._id &&
-                                               isToday(vf);
-                                      });
-                                      
-                                      if (matchingShowtime) {
-                                        navigate(`/bookings/seats/${matchingShowtime._id}`);
-                                      }
-                                    }}
-                                  >
-                                    {time}
-                                  </Button>
-                                ))
-                              ) : (
-                                <Text fontSize="sm" color="gray.400">Không có suất chiếu hôm nay</Text>
-                              )}
-                            </HStack>
-                          </VStack>
+                                  if (matchingShowtime) {
+                                    navigate(`/bookings/seats/${matchingShowtime._id}`);
+                                  }
+                                }}
+                              >
+                                {time}
+                              </Button>
+                            ))
+                          ) : (
+                            <Text fontSize="sm" color="gray.500">
+                              Không có suất chiếu hôm nay
+                            </Text>
+                          )}
+                        </Flex>
+                      </VStack>
 
-                          <Button
-                            bg="orange.400"
-                            color="white"
-                            _hover={{ bg: "orange.500" }}
-                            width="100%"
-                            onClick={() => navigate(`/movies/${movie._id}`)}
-                          >
-                            Xem chi tiết
-                          </Button>
-                        </VStack>
-                      </CardBody>
-                    </Card>
-                  );
-                })}
-              </Grid>
-            )}
-          </>
+                      <Button
+                        w="full"
+                        h="52px"
+                        rounded="full"
+                        bg="linear-gradient(90deg, #f59e0b, #f97316)"
+                        color="white"
+                        fontWeight="700"
+                        rightIcon={<ChevronRightIcon />}
+                        _hover={{
+                          transform: "translateY(-1px)",
+                          boxShadow: "0 14px 28px rgba(249,115,22,0.28)",
+                        }}
+                        onClick={() => navigate(`/movies/${movie._id}`)}
+                      >
+                        Xem chi tiết
+                      </Button>
+                    </VStack>
+                  </CardBody>
+                </Card>
+              );
+            })}
+          </Grid>
         )}
-      </Box>
+      </Container>
     </Box>
   );
 };
 
 export default TheaterDetailPage;
-
