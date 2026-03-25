@@ -271,16 +271,13 @@ export default function ProfilePage() {
       return
     }
 
-    const formData = new FormData()
-    formData.append("fullName", form.fullName || "")
-    formData.append("phone", form.phone || "")
-    formData.append("dateOfBirth", form.dateOfBirth || "")
-
-    if (avatarFile) {
-      formData.append("avatar", avatarFile)
+    const updateData = {
+      fullName: form.fullName || "",
+      phone: form.phone || "",
+      dateOfBirth: form.dateOfBirth || ""
     }
 
-    apiService.putFormData("/update-profile", formData, (res, success) => {
+    apiService.put("/update-profile", updateData, (res, success) => {
       if (success) {
         toast({
           title: res?.message || "Cập nhật thành công",
@@ -435,40 +432,6 @@ export default function ProfilePage() {
                     </Badge>
                   </Box>
 
-                  {editing && (
-                    <Box w="full">
-                      <FormLabel
-                        htmlFor="avatar-upload"
-                        mb={2}
-                        display="inline-flex"
-                        alignItems="center"
-                        gap={2}
-                        px={4}
-                        py={3}
-                        borderRadius="xl"
-                        bg="whiteAlpha.100"
-                        border="1px dashed"
-                        borderColor="orange.300"
-                        color="orange.200"
-                        cursor="pointer"
-                        _hover={{ bg: "whiteAlpha.200" }}
-                      >
-                        <Icon as={FiUpload} />
-                        Chọn ảnh avatar
-                      </FormLabel>
-                      <Input
-                        id="avatar-upload"
-                        type="file"
-                        accept="image/*"
-                        display="none"
-                        onChange={handleAvatarChange}
-                      />
-                      <Text color="gray.400" fontSize="sm">
-                        Hỗ trợ JPG, PNG, WEBP. Tối đa 5MB.
-                      </Text>
-                    </Box>
-                  )}
-
                   <VStack spacing={1} align={{ base: "center", lg: "start" }}>
                     <Heading size="lg" color="white" textAlign={{ base: "center", lg: "left" }}>
                       {profile.fullName || profile.username || "Người dùng"}
@@ -537,7 +500,7 @@ export default function ProfilePage() {
                         Thông tin cá nhân
                       </Heading>
                       <Text color="gray.400" mt={1}>
-                        Quản lý hồ sơ tài khoản theo phong cách web rạp chiếu phim chuyên nghiệp.
+                        Quản lý thông tin và bảo mật tài khoản của bạn
                       </Text>
                     </Box>
 
