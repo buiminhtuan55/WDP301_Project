@@ -492,6 +492,40 @@ class ApiService {
   }
 
   /**
+   * PUT request với FormData
+   */
+  async putFormData(url, formData, callback = null) {
+    try {
+      const response = await fetch(`${this.baseURL}${url}`, {
+        method: 'PUT',
+        headers: this.createHeaders(true, false), // Không set Content-Type cho FormData
+        body: formData,
+      });
+
+      await this.handleResponse(response, callback);
+    } catch (error) {
+      if (callback) callback(error, false);
+    }
+  }
+
+  /**
+   * PATCH request với FormData
+   */
+  async patchFormData(url, formData, callback = null) {
+    try {
+      const response = await fetch(`${this.baseURL}${url}`, {
+        method: 'PATCH',
+        headers: this.createHeaders(true, false),
+        body: formData,
+      });
+
+      await this.handleResponse(response, callback);
+    } catch (error) {
+      if (callback) callback(error, false);
+    }
+  }
+
+  /**
    * GET request không cần authentication
    */
   async getPublic(url, params = {}, callback = null) {
