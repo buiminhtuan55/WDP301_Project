@@ -5,6 +5,7 @@ import {
   BrowserRouter as Router,
   Routes,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 
 // ===== Auth & Layout Pages =====
@@ -18,7 +19,6 @@ import RegisterPage from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SocialAuthSuccess from "./pages/SocialAuthSuccess";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
-import AdminAndStaffLoginPage from "./pages/admin/AdminAndStaffLoginPage";
 import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
 
 // ===== Movie Pages =====
@@ -129,7 +129,7 @@ function AppContent() {
           {/* ===== Auth & Profile Routes ===== */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin/login" element={<AdminAndStaffLoginPage />} />
+          <Route path="/admin/login" element={<Navigate to="/login" replace />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/logintest" element={<LoginPagetest />} />
           <Route path="/social-auth-success" element={<SocialAuthSuccess />} />

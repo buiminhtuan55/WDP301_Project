@@ -49,7 +49,7 @@ export default function StaffPaymentFailedPage() {
         description: "Không tìm thấy thông tin đặt vé. Vui lòng đăng nhập lại.",
         status: "error",
       });
-      navigate("/admin/login");
+      navigate("/login");
       return;
     }
 

@@ -29,8 +29,18 @@ const SocialAuthSuccess = () => {
           isClosable: true,
         });
 
-        // Chuyển hướng về trang chủ và tải lại để cập nhật header
-        navigate('/');
+        const role = (decodedUser.role || "customer").toLowerCase();
+        let redirectPath = "/";
+        if (role === "admin") {
+          redirectPath = "/admin/dashboard";
+        } else if (role === "lv1") {
+          redirectPath = "/staff/l1";
+        } else if (role === "lv2") {
+          redirectPath = "/staff/l2";
+        }
+
+        // Chuyển hướng theo role và tải lại để cập nhật header
+        navigate(redirectPath, { replace: true });
         setTimeout(() => window.location.reload(), 0);
 
       } catch (error) {

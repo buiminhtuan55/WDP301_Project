@@ -121,7 +121,7 @@ const ResetPasswordPage = () => {
         });
         // Redirect về trang login sau 2 giây
         setTimeout(() => {
-          navigate("/admin/login");
+          navigate("/login");
         }, 2000);
       } else {
         toast({
@@ -169,7 +169,7 @@ const ResetPasswordPage = () => {
               </Text>
               <Button
                 colorScheme="orange"
-                onClick={() => navigate("/admin/login")}
+                onClick={() => navigate("/login")}
                 mt={4}
               >
                 Quay về trang đăng nhập
@@ -287,7 +287,7 @@ const ResetPasswordPage = () => {
                   <Button
                     variant="ghost"
                     width="100%"
-                    onClick={() => navigate("/admin/login")}
+                    onClick={() => navigate("/login")}
                   >
                     Quay về trang đăng nhập
                   </Button>

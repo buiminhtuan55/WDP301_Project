@@ -42,7 +42,7 @@ export default function SidebarAdmin() {
         authService.clearAuthData();
 
         // ✅ Chuyển hướng về trang login
-        navigate("/admin/login");
+        navigate("/login");
     };
 
     const ADMIN_LINKS = [

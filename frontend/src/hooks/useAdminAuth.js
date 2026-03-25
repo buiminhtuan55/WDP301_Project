@@ -23,7 +23,7 @@ export const useAdminAuth = () => {
           duration: 3000,
           isClosable: true,
         });
-        navigate("/admin/login");
+        navigate("/login");
         return false;
       }
 
@@ -69,7 +69,7 @@ export const useAdminAuth = () => {
         } else if (role === "lv2") {
           navigate("/staff/l2", { replace: true });
         } else {
-          navigate("/admin/login", { replace: true });
+          navigate("/login", { replace: true });
         }
         return false;
       }

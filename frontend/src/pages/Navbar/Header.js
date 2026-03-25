@@ -59,7 +59,7 @@ const Header = ({ isAdmin = false }) => {
   const handleLogout = () => {
     authService.clearAuthData()
     onClose()
-    navigate(isAdmin ? "/admin/login" : "/login")
+    navigate("/login")
   }
 
   const NavLinks = () => (

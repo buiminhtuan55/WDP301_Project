@@ -62,7 +62,7 @@ const StaffL2Page = () => {
           duration: 3000,
           isClosable: true,
         });
-        navigate("/admin/login");
+        navigate("/login");
         return false;
       }
 
@@ -101,7 +101,7 @@ const StaffL2Page = () => {
           duration: 3000,
           isClosable: true,
         });
-        navigate("/admin/login");
+        navigate("/login");
         return false;
       }
 

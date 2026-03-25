@@ -159,12 +159,9 @@ export const loginCustomer = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: "Tên đăng nhập hoặc mật khẩu không chính xác" });
     }
-    // Chỉ cho phép customer đăng nhập qua cổng customer
-    if (user.role !== "customer") {
-      return res.status(403).json({ message: "Vui lòng sử dụng cổng đăng nhập nhân viên" });
-    }
-    // Chặn tài khoản chưa xác thực email
-    if (!user.isVerified) {
+    const isCustomer = user.role === "customer";
+    // Chặn tài khoản chưa xác thực email (chỉ áp dụng cho customer)
+    if (isCustomer && !user.isVerified) {
       return res.status(403).json({ 
         message: "Tài khoản chưa được xác thực email. Vui lòng kiểm tra hộp thư của bạn.",
         needVerification: true,

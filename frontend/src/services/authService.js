@@ -14,7 +14,21 @@ class AuthService {
    */
   setAuthData(token, user) {
     localStorage.setItem(this.tokenKey, token);
+    localStorage.setItem('token', token);
     localStorage.setItem(this.userKey, JSON.stringify(user));
+
+    // Đồng bộ role để các trang admin/staff dùng lại
+    if (user?.role) {
+      localStorage.setItem('userRole', user.role);
+      localStorage.setItem('role', JSON.stringify({ role: user.role }));
+
+      const normalizedRole = (user.role || '').toLowerCase();
+      const isStaff =
+        normalizedRole === 'admin' ||
+        normalizedRole === 'lv1' ||
+        normalizedRole === 'lv2';
+      localStorage.setItem('isStaff', isStaff ? 'true' : 'false');
+    }
   }
 
   /**

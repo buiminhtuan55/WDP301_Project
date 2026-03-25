@@ -61,7 +61,7 @@ const StaffL1Page = () => {
           duration: 3000,
           isClosable: true,
         });
-        navigate("/admin/login");
+        navigate("/login");
         return false;
       }
 
@@ -100,7 +100,7 @@ const StaffL1Page = () => {
           duration: 3000,
           isClosable: true,
         });
-        navigate("/admin/login");
+        navigate("/login");
         return false;
       }
 
@@ -302,7 +302,7 @@ const StaffL1Page = () => {
       duration: 2000,
       position: "top",
       onCloseComplete: () => {
-        window.location.href = "/admin/login";
+        window.location.href = "/login";
       }
     });
   };

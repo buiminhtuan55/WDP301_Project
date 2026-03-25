@@ -75,6 +75,15 @@ const Login = () => {
 
           if (success && response) {
             authService.setAuthData(response.accessToken, response.user)
+            const role = (response.user?.role || "customer").toLowerCase()
+            let redirectPath = "/"
+            if (role === "admin") {
+              redirectPath = "/admin/dashboard"
+            } else if (role === "lv1") {
+              redirectPath = "/staff/l1"
+            } else if (role === "lv2") {
+              redirectPath = "/staff/l2"
+            }
             toast({
               title: "Đăng nhập thành công!",
               description: `Chào mừng ${response.user.username}`,
@@ -82,7 +91,7 @@ const Login = () => {
               duration: 3000,
               isClosable: true,
             })
-            navigate("/")
+            navigate(redirectPath, { replace: true })
             setTimeout(() => window.location.reload(), 0)
           } else {
             if (response?.needVerification) {

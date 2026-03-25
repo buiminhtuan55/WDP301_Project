@@ -402,7 +402,7 @@ export default function MovieSeatBookingPage() {
     
     if (!token || !isStaff) {
       toast({ title: "Unauthorized", description: "Staff access required", status: "error", duration: 2000 });
-      navigate("/admin/login");
+      navigate("/login");
       return;
     }
 
@@ -456,7 +456,7 @@ export default function MovieSeatBookingPage() {
     
     if (!token || !isStaff) {
       toast({ title: "Unauthorized", description: "Staff access required", status: "error", duration: 2000 });
-      navigate("/admin/login");
+      navigate("/login");
       return;
     }
 

@@ -86,11 +86,11 @@ export default function StaffPaymentSuccessPage() {
         description: "Không tìm thấy thông tin đặt vé. Vui lòng đăng nhập lại.",
         status: "error",
       });
-      navigate("/admin/login");
+      navigate("/login");
       return;
     }
     if (!bookingId || !token) {
-      navigate("/admin/login");
+      navigate("/login");
       return;
     }
     const run = async () => {

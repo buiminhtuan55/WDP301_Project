@@ -38,7 +38,7 @@ export default function SidebarStaff() {
     authService.clearAuthData();
     onClose(); 
     setTimeout(() => {
-      window.location.href = "/admin/login";
+      window.location.href = "/login";
     }, 100);
   };
 

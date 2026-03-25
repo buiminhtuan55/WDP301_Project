@@ -74,7 +74,7 @@ export default function PayOSReturnHandler() {
 
         if (!token || !role || (role !== 'lv1' && role !== 'lv2' && role !== 'admin')) {
           toast({ title: 'Unauthorized', description: 'Staff access required', status: 'error' });
-          navigate('/admin/login');
+          navigate('/login');
           return;
         }
 
@@ -201,7 +201,7 @@ export default function PayOSReturnHandler() {
         // Xóa cả sessionStorage và localStorage khi redirect
         sessionStorage.removeItem("staffReturnPage");
         localStorage.removeItem("staffReturnPage");
-        navigate(isAuthError ? '/admin/login' : staffPage);
+        navigate(isAuthError ? '/login' : staffPage);
       }
     };
 
