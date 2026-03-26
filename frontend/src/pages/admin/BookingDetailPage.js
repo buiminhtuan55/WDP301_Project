@@ -22,10 +22,10 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
-import { useAdminOrStaffL2Auth } from "../../hooks/useAdminOrStaffL2Auth";
+import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 const BookingDetailPage = () => {
-  const isAuthorized = useAdminOrStaffL2Auth();
+  const isAuthorized = useAdminAuth();
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();

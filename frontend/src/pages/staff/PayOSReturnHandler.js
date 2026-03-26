@@ -51,7 +51,7 @@ export default function PayOSReturnHandler() {
       }
     }
     
-    const fallbackPage = role === "lv2" ? "/staff/l2" : "/staff/l1";
+    const fallbackPage = "/staff/l1";
     console.log("⚠️ PayOSReturnHandler - Using fallback page based on role:", role, "->", fallbackPage);
     return fallbackPage;
   };
@@ -72,7 +72,7 @@ export default function PayOSReturnHandler() {
           return;
         }
 
-        if (!token || !role || (role !== 'lv1' && role !== 'lv2' && role !== 'admin')) {
+        if (!token || !role || (role !== 'lv1' && role !== 'admin')) {
           toast({ title: 'Unauthorized', description: 'Staff access required', status: 'error' });
           navigate('/login');
           return;

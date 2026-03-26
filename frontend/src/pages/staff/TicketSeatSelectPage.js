@@ -43,7 +43,7 @@ export default function MovieSeatBookingPage() {
   useEffect(() => {
     const getStaffPage = () => {
       const role = (localStorage.getItem("userRole") || "").toLowerCase();
-      return role === "lv2" ? "/staff/l2" : "/staff/l1";
+      return "/staff/l1";
     };
     
     // Lưu trang staff hiện tại vào sessionStorage và localStorage
@@ -382,7 +382,7 @@ export default function MovieSeatBookingPage() {
   // 🔹 Get staff page based on role
   const getStaffPage = () => {
     const role = (localStorage.getItem("userRole") || "").toLowerCase();
-    return role === "lv2" ? "/staff/l2" : "/staff/l1";
+    return "/staff/l1";
   };
 
   // 🔹 Handle cash payment

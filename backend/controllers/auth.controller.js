@@ -17,7 +17,7 @@ export const registerStaff = async (req, res, next) => {
       });
     }
 
-    const validStaffRoles = ["LV1", "LV2"];
+    const validStaffRoles = ["LV1"];
     if (!validStaffRoles.includes(role)) {
       return res.status(400).json({ message: `Vai trò không hợp lệ. Chỉ chấp nhận: ${validStaffRoles.join(", ")}` });
     }
@@ -72,6 +72,9 @@ export const loginStaff = async (req, res, next) => {
     // Chỉ cho phép staff/admin đăng nhập qua cổng staff
     if (user.role === "customer") {
       return res.status(403).json({ message: "Bạn không có quyền đăng nhập tại cổng nhân viên" });
+    }
+    if (!["admin", "LV1"].includes(user.role)) {
+      return res.status(403).json({ message: "Vai trò này không được hỗ trợ đăng nhập tại cổng nhân viên" });
     }
     // Chặn tài khoản không hoạt động
     if (user.status && user.status !== "active") {
@@ -976,7 +979,7 @@ export const updateUserRole = async (req, res, next) => {
       return res.status(400).json({ message: "ID người dùng không hợp lệ" });
     }
 
-    const validStaffRoles = ["LV1", "LV2"];
+    const validStaffRoles = ["LV1"];
     if (!validStaffRoles.includes(role)) {
       return res.status(400).json({ message: `Vai trò không hợp lệ. Chỉ chấp nhận: ${validStaffRoles.join(", ")}` });
     }
@@ -993,7 +996,7 @@ export const updateUserRole = async (req, res, next) => {
     }
 
     // Chỉ cho phép thay đổi vai trò của staff
-    if (!["staff", "LV1", "LV2"].includes(targetUser.role)) {
+    if (!["staff", "LV1"].includes(targetUser.role)) {
       return res.status(403).json({ message: "Chỉ có thể thay đổi vai trò cho tài khoản nhân viên" });
     }
 

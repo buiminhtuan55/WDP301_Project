@@ -223,7 +223,7 @@ const PaymentFailedPage = () => {
                 }
               }
               
-              const isStaffRole = role === "lv1" || role === "lv2" || role === "admin";
+              const isStaffRole = role === "lv1" || role === "admin";
               
               if (isStaff || isStaffRole) {
                 let staffPage = sessionStorage.getItem("staffReturnPage");
@@ -236,7 +236,7 @@ const PaymentFailedPage = () => {
                   localStorage.removeItem("staffReturnPage");
                   navigate(staffPage);
                 } else {
-                  const fallbackPage = role === "lv2" ? "/staff/l2" : "/staff/l1";
+                  const fallbackPage = "/staff/l1";
                   navigate(fallbackPage);
                 }
               } else {
@@ -259,7 +259,7 @@ const PaymentFailedPage = () => {
                   // Ignore
                 }
               }
-              const isStaffRole = role === "lv1" || role === "lv2" || role === "admin";
+              const isStaffRole = role === "lv1" || role === "admin";
               return isStaff || isStaffRole ? "Quay về trang staff" : "Quay về trang chủ";
             })()}
           </Button>

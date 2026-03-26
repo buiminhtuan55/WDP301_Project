@@ -256,7 +256,7 @@ export const checkBookingPaymentStatus = async (req, res, next) => {
     }
 
     const isOwner = booking.user_id.toString() === req.user._id.toString();
-    const isStaffOrAdmin = req.user.role === "lv1" || req.user.role === "lv2" || req.user.role === "admin";
+    const isStaffOrAdmin = req.user.role === "lv1" || req.user.role === "admin";
 
     if (!isOwner && !isStaffOrAdmin) {
       return res.status(403).json({ message: "Ban khong co quyen xem booking nay." });

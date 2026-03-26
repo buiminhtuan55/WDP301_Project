@@ -36,11 +36,10 @@ import {
 import { FaBan, FaCheckCircle, FaSearch } from "react-icons/fa"
 import { AddIcon } from "@chakra-ui/icons"
 import SidebarAdmin from "../Navbar/SidebarAdmin"
-import SidebarStaff from "../Navbar/SidebarStaff"
-import { useAdminOrStaffL2Auth } from "../../hooks/useAdminOrStaffL2Auth"
+import { useAdminAuth } from "../../hooks/useAdminAuth"
 
 export default function ShowtimeManagementPage() {
-  const isAuthorized = useAdminOrStaffL2Auth();
+  const isAuthorized = useAdminAuth();
   const [showtimes, setShowtimes] = useState([])
   const [movies, setMovies] = useState([])
   const [rooms, setRooms] = useState([])
@@ -67,38 +66,6 @@ export default function ShowtimeManagementPage() {
   const activeRooms = useMemo(() => {
     return Array.isArray(rooms) ? rooms.filter(r => r && (r.status === "active" || r.status === undefined)) : []
   }, [rooms])
-
-  // Lấy thông tin role từ localStorage
-  let roleData = null
-  try {
-    roleData = JSON.parse(localStorage.getItem("role"))
-  } catch (e) {
-    const directRole = localStorage.getItem("role") || localStorage.getItem("userRole")
-    if (directRole) {
-      roleData = { role: directRole }
-    }
-  }
-
-  const role = roleData?.role || ""
-
-  // Xác định role và quyền hạn - chỉ cho phép admin và lv2
-  let isAdmin = false
-  let isStaff = false
-
-  if (role.toLowerCase() === "admin") {
-    isAdmin = true
-  } else if (role.toLowerCase() === "lv2") {
-    isStaff = true
-  } else {
-    // Nếu không phải admin hoặc lv2, chuyển hướng hoặc hiển thị thông báo
-    toast({
-      title: "Không có quyền truy cập",
-      description: "Bạn không có quyền truy cập trang này",
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-    })
-  }
 
   // 🔹 Lấy danh sách suất chiếu
   const fetchShowtimes = async () => {
@@ -466,21 +433,9 @@ export default function ShowtimeManagementPage() {
     );
   }
 
-  // Nếu không có quyền truy cập, không render gì cả
-  if (!isAdmin && !isStaff) {
-    return (
-      <Flex minH="100vh" bg="#181a20" color="white" justify="center" align="center">
-        <Box textAlign="center">
-          <Heading size="lg" color="red.400" mb={4}>Không có quyền truy cập</Heading>
-          <Text color="gray.400">Bạn không có quyền truy cập trang này</Text>
-        </Box>
-      </Flex>
-    )
-  }
-
   return (
     <Flex minH="100vh" bg="#181a20" color="white">
-      {isAdmin ? <SidebarAdmin /> : <SidebarStaff />}
+      <SidebarAdmin />
 
       {/* Main Content */}
       <Box flex="1" p={6}>

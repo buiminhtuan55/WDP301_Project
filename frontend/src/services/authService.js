@@ -25,8 +25,7 @@ class AuthService {
       const normalizedRole = (user.role || '').toLowerCase();
       const isStaff =
         normalizedRole === 'admin' ||
-        normalizedRole === 'lv1' ||
-        normalizedRole === 'lv2';
+        normalizedRole === 'lv1';
       localStorage.setItem('isStaff', isStaff ? 'true' : 'false');
     }
   }

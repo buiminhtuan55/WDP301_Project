@@ -81,8 +81,6 @@ const Login = () => {
               redirectPath = "/admin/dashboard"
             } else if (role === "lv1") {
               redirectPath = "/staff/l1"
-            } else if (role === "lv2") {
-              redirectPath = "/staff/l2"
             }
             toast({
               title: "Đăng nhập thành công!",

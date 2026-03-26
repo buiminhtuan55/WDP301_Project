@@ -29,11 +29,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ViewIcon, DownloadIcon } from "@chakra-ui/icons";
 import SidebarAdmin from "../Navbar/SidebarAdmin";
-import SidebarStaff from "../Navbar/SidebarStaff";
-import { useAdminOrStaffL2Auth } from "../../hooks/useAdminOrStaffL2Auth";
+import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 const BookingManagementPage = () => {
-  const isAuthorized = useAdminOrStaffL2Auth();
+  const isAuthorized = useAdminAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchUser, setSearchUser] = useState("");
@@ -46,29 +45,6 @@ const BookingManagementPage = () => {
   const navigate = useNavigate();
   const [exporting, setExporting] = useState(false);
   
-
-  // Lấy thông tin role từ localStorage
-  let roleData = null;
-  try {
-    roleData = JSON.parse(localStorage.getItem("role"));
-  } catch (e) {
-    const directRole = localStorage.getItem("role") || localStorage.getItem("userRole");
-    if (directRole) {
-      roleData = { role: directRole };
-    }
-  }
-  
-  const role = roleData?.role || "";
-  
-  // Xác định role và quyền hạn - chỉ cho phép admin và lv2
-  let isAdmin = false;
-  let isStaff = false;
-  
-  if (role.toLowerCase() === "admin") {
-    isAdmin = true;
-  } else if (role.toLowerCase() === "lv2") {
-    isStaff = true;
-  }
 
   useEffect(() => {
     if (!isAuthorized) return;
@@ -550,21 +526,9 @@ const BookingManagementPage = () => {
     );
   }
 
-  // Nếu không có quyền truy cập, không render gì cả
-  if (!isAdmin && !isStaff) {
-    return (
-      <Flex minH="100vh" bg="#181a20" color="white" justify="center" align="center">
-        <Box textAlign="center">
-          <Heading size="lg" color="red.400" mb={4}>Không có quyền truy cập</Heading>
-          <Text color="gray.400">Bạn không có quyền truy cập trang này</Text>
-        </Box>
-      </Flex>
-    );
-  }
-
   return (
     <Flex bg="#0f1117" minH="100vh" color="white">
-      {isAdmin ? <SidebarAdmin /> : <SidebarStaff />}
+      <SidebarAdmin />
       
       <Box flex="1" p={6}>
         <Heading mb={6} color="orange.400">Quản lý đặt phim</Heading>

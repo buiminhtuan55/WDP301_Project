@@ -35,8 +35,6 @@ const SocialAuthSuccess = () => {
           redirectPath = "/admin/dashboard";
         } else if (role === "lv1") {
           redirectPath = "/staff/l1";
-        } else if (role === "lv2") {
-          redirectPath = "/staff/l2";
         }
 
         // Chuyển hướng theo role và tải lại để cập nhật header

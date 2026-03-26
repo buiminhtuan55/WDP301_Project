@@ -54,7 +54,6 @@ import StaffManagementPage from "./pages/admin/StaffManagementPage";
 import UserDetailPage from "./pages/admin/UserDetailPage";
 import PayOSReturnHandler from "./pages/staff/PayOSReturnHandler";
 import StaffL1Page from "./pages/staff/StaffL1Page";
-import StaffL2Page from "./pages/staff/StaffL2Page";
 import StaffProfilePage from "./pages/staff/StaffProfilePage";
 import StaffPaymentFailedPage from "./pages/staff/StaffPaymentFailedPage";
 import StaffPaymentSuccessPage from "./pages/staff/StaffPaymentSuccessPage";
@@ -83,8 +82,7 @@ function AppContent() {
 
     const role = roleData?.role || "";
     const isAdmin = role.toLowerCase() === "admin";
-    const isStaff =
-      role.toLowerCase() === "lv2" || role.toLowerCase() === "lv1";
+    const isStaff = role.toLowerCase() === "lv1";
 
     const pathStartsWithStaff = location.pathname.startsWith("/staff/");
     const pathStartsWithAdmin = /^\/admin\//.test(location.pathname);
@@ -191,7 +189,6 @@ function AppContent() {
           <Route path="/bookings/:id" element={<BookingDetailPage />} />
           <Route path="/combos" element={<CombosManagement />} />
           <Route path="/staff/l1" element={<StaffL1Page />} />
-          <Route path="/staff/l2" element={<StaffL2Page />} />
           <Route path="/staff/profile" element={<StaffProfilePage />} />
           <Route path="/staff/ticket" element={<TicketSeatSelectPage />} />
           <Route path="/staff/payos-return" element={<PayOSReturnHandler />} />

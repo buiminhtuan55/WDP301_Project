@@ -44,12 +44,8 @@ export default function StaffManagementPage() {
   fullName: "",
   role: "LV1"
 })
-  const [editingStaff, setEditingStaff] = useState(null)
-  const [newRole, setNewRole] = useState("")
   const [creating, setCreating] = useState(false)
-  const [updatingRole, setUpdatingRole] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
   const toast = useToast()
   const navigate = useNavigate()
 
@@ -73,7 +69,7 @@ export default function StaffManagementPage() {
             {
               field: "role",
               operator: "in",
-              value: ["LV1", "LV2"]
+              value: ["LV1"]
             }
           ]
         })
@@ -98,83 +94,6 @@ export default function StaffManagementPage() {
     fetchAllStaffs()
   }, [isAuthorized])
 
-  // ✅ Mở modal cập nhật role
-  const handleOpenEditRole = (staff) => {
-    setEditingStaff(staff)
-    setNewRole(staff.role)
-    onEditOpen()
-  }
-
-  // ✅ Cập nhật role
-  const handleUpdateRole = async () => {
-    if (!editingStaff || !newRole) {
-      toast({
-        title: "Lỗi",
-        description: "Vui lòng chọn vai trò mới",
-        status: "error",
-        duration: 3000,
-      })
-      return
-    }
-
-    if (newRole === editingStaff.role) {
-      toast({
-        title: "Thông báo",
-        description: "Vai trò không thay đổi",
-        status: "info",
-        duration: 3000,
-      })
-      return
-    }
-
-    setUpdatingRole(true)
-    const token = localStorage.getItem("token")
-    
-    try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${editingStaff.id}/role`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` })
-        },
-        body: JSON.stringify({ role: newRole })
-      })
-
-      if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData.message || "Cập nhật vai trò thất bại")
-      }
-
-      // Cập nhật local state
-      setStaffs(staffs =>
-        staffs.map(s =>
-          s.id === editingStaff.id ? { ...s, role: newRole } : s
-        )
-      )
-
-      toast({
-        title: "Thành công",
-        description: `Đã cập nhật vai trò thành ${newRole === "LV1" ? "Nhân viên cấp 1" : "Nhân viên cấp 2"}`,
-        status: "success",
-        duration: 3000,
-        isClosable: true
-      })
-
-      onEditClose()
-      setEditingStaff(null)
-      setNewRole("")
-    } catch (err) {
-      toast({
-        title: "Lỗi",
-        description: err.message,
-        status: "error",
-        duration: 4000,
-        isClosable: true
-      })
-    } finally {
-      setUpdatingRole(false)
-    }
-  }
 
   // ✅ Hàm xác định trạng thái từ dữ liệu API
   const determineStatus = (user) => {
@@ -417,7 +336,6 @@ export default function StaffManagementPage() {
             users={paginatedStaffs} 
             onViewInfo={u => navigate(`/admin/user/${u.id}`)} 
             onToggleStatus={handleToggleStatus}
-            onEditRole={handleOpenEditRole}
             onSendResetPassEmail={handleSendResetPassEmail}
           />
         )}
@@ -532,7 +450,6 @@ export default function StaffManagementPage() {
                   bg="gray.800"
                 >
                   <option value="LV1">Nhân viên cấp 1</option>
-                  <option value="LV2">Nhân viên cấp 2</option>
                 </Select>
               </FormControl>
             </ModalBody>
@@ -547,54 +464,6 @@ export default function StaffManagementPage() {
           </ModalContent>
         </Modal>
 
-        {/* Modal cập nhật role */}
-        <Modal isOpen={isEditOpen} onClose={onEditClose} isCentered>
-          <ModalOverlay />
-          <ModalContent bg="gray.900" color="white">
-            <ModalHeader>Cập nhật vai trò nhân viên</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              {editingStaff && (
-                <>
-                  <Text mb={4} color="gray.300">
-                    Nhân viên: <strong>{editingStaff.username}</strong>
-                  </Text>
-                  <Text mb={4} color="gray.400" fontSize="sm">
-                    Email: {editingStaff.email}
-                  </Text>
-                  <FormControl>
-                    <FormLabel>Vai trò mới</FormLabel>
-                    <Select
-                      value={newRole}
-                      onChange={e => setNewRole(e.target.value)}
-                      bg="gray.800"
-                    >
-                      <option value="LV1" style={{ background: "#1a202c" }}>
-                        Nhân viên cấp 1
-                      </option>
-                      <option value="LV2" style={{ background: "#1a202c" }}>
-                        Nhân viên cấp 2
-                      </option>
-                    </Select>
-                  </FormControl>
-                </>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              <Button onClick={onEditClose} mr={3}>
-                Hủy
-              </Button>
-              <Button 
-                colorScheme="blue" 
-                onClick={handleUpdateRole} 
-                isLoading={updatingRole}
-                loadingText="Đang cập nhật..."
-              >
-                Cập nhật
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
       </Box>
     </Flex>
   )

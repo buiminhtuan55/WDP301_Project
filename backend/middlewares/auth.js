@@ -63,10 +63,10 @@ export const requireRole = (roles) => {
 };
 
 // Middleware kiểm tra quyền admin
-export const requireAdmin = requireRole(["admin", "LV2"]);
+export const requireAdmin = requireRole(["admin"]);
 
 // Middleware kiểm tra quyền staff hoặc admin
-export const requireStaff = requireRole(["staff", "LV1", "LV2", "admin"]);
+export const requireStaff = requireRole(["staff", "LV1", "admin"]);
 
 // Middleware kiểm tra quyền customer hoặc cao hơn
 export const requireCustomer = requireRole(["customer", "staff", "admin"]);

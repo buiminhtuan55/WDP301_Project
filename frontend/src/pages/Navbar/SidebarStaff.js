@@ -16,7 +16,6 @@ import {
 } from "@chakra-ui/react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  FaShoppingCart,
   FaFilm,
   FaClock,
   FaTicketAlt,
@@ -45,7 +44,6 @@ export default function SidebarStaff() {
 
   const STAFF_LINKS = [
     { to: "/staff/profile", label: "Thông tin nhân viên", icon: FaUser },
-    { to: "/staff/l2", label: "Bán vé & Bắp nước", icon: FaShoppingCart },
     { to: "/movies", label: "Quản lý phim", icon: FaFilm },
     { to: "/showtimes", label: "Quản lý xuất chiếu", icon: FaClock },
     { to: "/bookings", label: "Quản lý đặt vé", icon: FaTicketAlt },
@@ -79,7 +77,7 @@ export default function SidebarStaff() {
             textTransform="uppercase"
             letterSpacing="wide"
           >
-            Staff Level 2
+            Staff
           </Text>
         </Box>
 

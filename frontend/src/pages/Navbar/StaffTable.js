@@ -14,13 +14,12 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { Box, Heading, Flex, Button, Icon, Badge } from "@chakra-ui/react";
-import { FaUsers, FaEye, FaChevronDown, FaUserEdit, FaUndo } from "react-icons/fa";
+import { FaUsers, FaEye, FaChevronDown, FaUndo } from "react-icons/fa";
 
 const StaffTable = ({
    users,
     onViewInfo,
     onToggleStatus,
-    onEditRole,
     onSendResetPassEmail,
      }) => {
   const getStatusColor = (status) => {
@@ -49,28 +48,6 @@ const StaffTable = ({
     }
   };
 
-  const getRoleLabel = (role) => {
-    switch (role) {
-      case "LV1":
-        return "Cấp 1";
-      case "LV2":
-        return "Cấp 2";
-      default:
-        return role;
-    }
-  };
-
-  const getRoleColor = (role) => {
-    switch (role) {
-      case "LV1":
-        return "blue";
-      case "LV2":
-        return "purple";
-      default:
-        return "gray";
-    }
-  };
-
   return (
     <Box p={6} bg="#1a1d29" borderRadius="lg" shadow="md" color="white">
       <Flex align="center" mb={4} gap={2}>
@@ -86,7 +63,6 @@ const StaffTable = ({
               <Th color="orange.300">ID</Th>
               <Th color="orange.300">Tên</Th>
               <Th color="orange.300">Email</Th>
-              <Th color="orange.300">Vai trò</Th>
               <Th color="orange.300">Trạng thái</Th>
               <Th color="orange.300">Thao tác</Th>
             </Tr>
@@ -101,11 +77,6 @@ const StaffTable = ({
                 <Td color="white">{user.id}</Td>
                 <Td color="white">{user.username}</Td>
                 <Td color="white">{user.email}</Td>
-                <Td>
-                  <Badge colorScheme={getRoleColor(user.role)} px={2} py={1} borderRadius="md">
-                    {getRoleLabel(user.role)}
-                  </Badge>
-                </Td>
                 <Td>
                   <Menu>
                     <MenuButton
@@ -152,16 +123,6 @@ const StaffTable = ({
                         bg="gray.600"
                         _hover={{ bg: "gray.700" }}
                         onClick={() => onViewInfo(user)}
-                      />
-                    </Tooltip>
-                    <Tooltip label="Cập nhật vai trò" hasArrow>
-                      <IconButton
-                        icon={<FaUserEdit />}
-                        size="sm"
-                        colorScheme="blue"
-                        variant="ghost"
-                        _hover={{ bg: "blue.600" }}
-                        onClick={() => onEditRole(user)}
                       />
                     </Tooltip>
                     <Tooltip label="Gửi Mail Khôi phục MK" hasArrow>

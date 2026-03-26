@@ -52,7 +52,7 @@ const PaymentSuccessPage = () => {
           // Ignore
         }
       }
-      const isStaffRole = role === "lv1" || role === "lv2" || role === "admin";
+      const isStaffRole = role === "lv1" || role === "admin";
       
       if (isStaff || isStaffRole) {
         navigate(`/staff/payment-failed?bookingId=${id}&cancel=true`);
@@ -73,7 +73,7 @@ const PaymentSuccessPage = () => {
         // Ignore
       }
     }
-    const isStaffRole = role === "lv1" || role === "lv2" || role === "admin";
+    const isStaffRole = role === "lv1" || role === "admin";
     
     if (isStaff || isStaffRole) {
       // Redirect về staff payment-success page

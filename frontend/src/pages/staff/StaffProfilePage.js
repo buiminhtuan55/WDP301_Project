@@ -22,12 +22,12 @@ import apiService from "../../services/apiService";
 import authService from "../../services/authService";
 import SidebarStaffL1 from "../Navbar/SidebarStaffL1";
 import SidebarStaff from "../Navbar/SidebarStaff";
+import SidebarAdmin from "../Navbar/SidebarAdmin";
 
 function normalizeRoleLabel(role) {
   const r = (role || "").toLowerCase();
   if (r === "admin") return "Quản trị viên";
-  if (r === "lv1") return "Nhân viên cấp 1 — Quầy vé";
-  if (r === "lv2") return "Nhân viên cấp 2 — Bán vé & combo";
+  if (r === "lv1") return "Nhân viên";
   return role || "—";
 }
 
@@ -124,7 +124,7 @@ export default function StaffProfilePage() {
     const r = getStaffRoleFromStorage();
     setRole(r);
 
-    if (r !== "lv1" && r !== "lv2" && r !== "admin") {
+    if (r !== "lv1" && r !== "admin") {
       toast({
         title: "Không có quyền",
         description: "Trang này chỉ dành cho nhân viên hoặc quản trị.",
@@ -141,8 +141,8 @@ export default function StaffProfilePage() {
 
   const goBack = () => {
     const r = role || getStaffRoleFromStorage();
-    if (r === "lv2" || r === "admin") {
-      navigate("/staff/l2");
+    if (r === "admin") {
+      navigate("/admin/dashboard");
       return;
     }
     navigate("/staff/l1");
@@ -156,7 +156,11 @@ export default function StaffProfilePage() {
     "Nhân viên";
 
   const sidebar =
-    sidebarRole === "lv1" ? <SidebarStaffL1 /> : <SidebarStaff />;
+    sidebarRole === "lv1"
+      ? <SidebarStaffL1 />
+      : sidebarRole === "admin"
+        ? <SidebarAdmin />
+        : <SidebarStaff />;
 
   return (
     <Flex minH="100vh" bg="#181a20" color="white">

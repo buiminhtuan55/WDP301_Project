@@ -85,7 +85,7 @@ const StaffL1Page = () => {
       }
 
       // Kiểm tra role có phải staff không
-      if (role !== "lv1" && role !== "lv2" && role !== "admin") {
+      if (role !== "lv1" && role !== "admin") {
         toast({
           title: "Không có quyền truy cập",
           description: "Bạn không có quyền truy cập trang này",
@@ -94,19 +94,6 @@ const StaffL1Page = () => {
           isClosable: true,
         });
         navigate("/login");
-        return false;
-      }
-
-      // Nếu là lv2, redirect về trang l2
-      if (role === "lv2") {
-        toast({
-          title: "Chuyển hướng",
-          description: "Bạn đang được chuyển về trang quầy của bạn",
-          status: "info",
-          duration: 2000,
-          isClosable: true,
-        });
-        navigate("/staff/l2", { replace: true });
         return false;
       }
 

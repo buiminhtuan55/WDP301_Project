@@ -34,9 +34,10 @@ import {
 } from "@chakra-ui/react";
 import { ViewIcon, EditIcon, AddIcon, CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import SidebarAdmin from "../Navbar/SidebarAdmin";
-import SidebarStaff from "../Navbar/SidebarStaff";
+import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 const CombosManagement = () => {
+  const isAuthorized = useAdminAuth();
   const [combos, setCombos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
@@ -58,31 +59,10 @@ const CombosManagement = () => {
     image_url: "",
   });
 
-  // Lấy thông tin role từ localStorage
-  let roleData = null;
-  try {
-    roleData = JSON.parse(localStorage.getItem("role"));
-  } catch (e) {
-    const directRole = localStorage.getItem("role") || localStorage.getItem("userRole");
-    if (directRole) {
-      roleData = { role: directRole };
-    }
-  }
-  
-  const role = roleData?.role || "";
-  
-  // Xác định role và quyền hạn
-  let isAdmin = false;
-  
-  if (role.toLowerCase() === "admin") {
-    isAdmin = true;
-  } else if (role.toLowerCase() === "lv2") {
-    isAdmin = false;
-  }
-
   useEffect(() => {
+    if (!isAuthorized) return;
     fetchCombos();
-  }, []);
+  }, [isAuthorized]);
 
   const fetchCombos = async () => {
     setLoading(true);
@@ -318,9 +298,17 @@ const CombosManagement = () => {
     return `${day}/${month}/${year}`;
   };
 
+  if (!isAuthorized) {
+    return (
+      <Flex minH="100vh" bg="#0f1117" color="white" justify="center" align="center">
+        <Spinner size="xl" color="orange.400" />
+      </Flex>
+    );
+  }
+
   return (
     <Flex minH="100vh" bg="#181a20" color="white">
-      {isAdmin ? <SidebarAdmin /> : <SidebarStaff />}
+      <SidebarAdmin />
       <Box flex="1" p={6}>
         <Flex justify="space-between" align="center" mb={6}>
           <Heading color="orange.400">Quản lý Combo</Heading>

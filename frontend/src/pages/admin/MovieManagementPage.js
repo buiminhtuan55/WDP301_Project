@@ -42,11 +42,10 @@ import {
 } from "@chakra-ui/react";
 import { EditIcon, UnlockIcon, LockIcon, AddIcon } from "@chakra-ui/icons";
 import SidebarAdmin from "../Navbar/SidebarAdmin";
-import SidebarStaff from "../Navbar/SidebarStaff";
-import { useAdminOrStaffL2Auth } from "../../hooks/useAdminOrStaffL2Auth";
+import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 const MovieManagementPage = () => {
-  const isAuthorized = useAdminOrStaffL2Auth();
+  const isAuthorized = useAdminAuth();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTitle, setSearchTitle] = useState("");
@@ -72,28 +71,6 @@ const MovieManagementPage = () => {
     trailer_url: "",
     release_date: "",
   });
-
-  // Lấy thông tin role từ localStorage
-  let roleData = null;
-  try {
-    roleData = JSON.parse(localStorage.getItem("role"));
-  } catch (e) {
-    const directRole = localStorage.getItem("role") || localStorage.getItem("userRole");
-    if (directRole) {
-      roleData = { role: directRole };
-    }
-  }
-  
-  const role = roleData?.role || "";
-  
-  // Xác định role và quyền hạn
-  let isAdmin = false;
-  
-  if (role.toLowerCase() === "admin") {
-    isAdmin = true;
-  } else if (role.toLowerCase() === "lv2") {
-    isAdmin = false;
-  }
 
   useEffect(() => {
     if (!isAuthorized) return;
@@ -411,7 +388,7 @@ const MovieManagementPage = () => {
 
   return (
     <Flex minH="100vh" bg="#181a20" color="white">
-      {isAdmin ? <SidebarAdmin /> : <SidebarStaff />}
+      <SidebarAdmin />
 
       {/* Main Content */}
       <Box flex="1" p={6}>

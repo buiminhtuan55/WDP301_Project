@@ -43,7 +43,7 @@ export default function AdminAndStaffLoginPage() {
       const userInfo = data.user || null;
       const normalizedRole = (userRole || "").toLowerCase();
       const isStaff =
-        normalizedRole.startsWith("lv") || normalizedRole === "admin";
+        normalizedRole === "lv1" || normalizedRole === "admin";
 
       // Lưu token theo cả 2 key để tương thích
       if (accessToken) {
@@ -71,8 +71,6 @@ export default function AdminAndStaffLoginPage() {
         navigate("/admin/dashboard");
       } else if (userRole.toLowerCase() === "lv1") {
         navigate("/staff/l1");
-      } else if (userRole.toLowerCase() === "lv2") {
-        navigate("/staff/l2");
       } else {
         navigate("/admin/dashboard");
       }

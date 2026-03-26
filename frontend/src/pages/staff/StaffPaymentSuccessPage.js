@@ -64,7 +64,7 @@ export default function StaffPaymentSuccessPage() {
       }
     }
     
-    const fallbackPage = role === "lv2" ? "/staff/l2" : "/staff/l1";
+    const fallbackPage = "/staff/l1";
     console.log("⚠️ StaffPaymentSuccess - Using fallback page based on role:", role, "->", fallbackPage);
     return fallbackPage;
   };

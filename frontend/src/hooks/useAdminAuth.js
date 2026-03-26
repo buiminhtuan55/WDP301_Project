@@ -66,8 +66,6 @@ export const useAdminAuth = () => {
         // Nếu là staff, redirect về trang staff tương ứng
         if (role === "lv1") {
           navigate("/staff/l1", { replace: true });
-        } else if (role === "lv2") {
-          navigate("/staff/l2", { replace: true });
         } else {
           navigate("/login", { replace: true });
         }
