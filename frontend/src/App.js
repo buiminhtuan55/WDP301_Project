@@ -55,6 +55,7 @@ import UserDetailPage from "./pages/admin/UserDetailPage";
 import PayOSReturnHandler from "./pages/staff/PayOSReturnHandler";
 import StaffL1Page from "./pages/staff/StaffL1Page";
 import StaffL2Page from "./pages/staff/StaffL2Page";
+import StaffProfilePage from "./pages/staff/StaffProfilePage";
 import StaffPaymentFailedPage from "./pages/staff/StaffPaymentFailedPage";
 import StaffPaymentSuccessPage from "./pages/staff/StaffPaymentSuccessPage";
 import TicketSeatSelectPage from "./pages/staff/TicketSeatSelectPage";
@@ -191,6 +192,7 @@ function AppContent() {
           <Route path="/combos" element={<CombosManagement />} />
           <Route path="/staff/l1" element={<StaffL1Page />} />
           <Route path="/staff/l2" element={<StaffL2Page />} />
+          <Route path="/staff/profile" element={<StaffProfilePage />} />
           <Route path="/staff/ticket" element={<TicketSeatSelectPage />} />
           <Route path="/staff/payos-return" element={<PayOSReturnHandler />} />
           <Route

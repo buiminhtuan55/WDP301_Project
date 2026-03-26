@@ -14,13 +14,14 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   FaShoppingCart,
   FaFilm,
   FaClock,
   FaTicketAlt,
   FaSignOutAlt,
+  FaUser,
 } from "react-icons/fa";
 import { useRef } from "react";
 import authService from "../../services/authService";
@@ -43,6 +44,7 @@ export default function SidebarStaff() {
   };
 
   const STAFF_LINKS = [
+    { to: "/staff/profile", label: "Thông tin nhân viên", icon: FaUser },
     { to: "/staff/l2", label: "Bán vé & Bắp nước", icon: FaShoppingCart },
     { to: "/movies", label: "Quản lý phim", icon: FaFilm },
     { to: "/showtimes", label: "Quản lý xuất chiếu", icon: FaClock },
