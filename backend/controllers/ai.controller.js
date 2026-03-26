@@ -221,6 +221,25 @@ export const chatWithBot = async (req, res) => {
         let response = '';
         let data = null;
 
+        // Hàm làm sạch tên phim từ câu hỏi người dùng
+        const cleanMovieNameFromQuestion = (raw) => {
+            if (!raw) return null;
+            let name = raw.trim();
+            // Nếu người dùng gõ cả câu, cố gắng lấy phần sau từ "phim"
+            const phimMatch = name.match(/phim\s+(.+)$/i);
+            if (phimMatch && phimMatch[1]) {
+                name = phimMatch[1].trim();
+            }
+            // Loại bỏ các cụm từ phổ biến không thuộc tên phim
+            name = name
+                .replace(/^(cho\s+t[oô]i\s+bi[eê]t\s+th[oô]ng\s+tin\s+v[eê]|th[oô]ng\s+tin\s+v[eê]|cho\s+t[oô]i\s+bi[eê]t|v[eê]|h[oỏ]i|mu[oố]n|t[iì]m)\s+/i, '')
+                .replace(/^(phim)\s+/i, '')
+                .replace(/\s+(th[iì]\s+sao|th[ếe]\s+n[àa]o|nh[ư]?\s+n[àa]o|ra\s+sao|được\s+không|không|nhỉ)\s*$/i, '')
+                .replace(/[?.!,]+$/g, '')
+                .trim();
+            return name || null;
+        };
+
         // Hàm tìm phim theo tên
         const findMovieByName = (searchName) => {
             const searchLower = searchName.toLowerCase().trim();
@@ -325,7 +344,7 @@ export const chatWithBot = async (req, res) => {
             let movieName = null;
             const movieMatch = userMessage.match(/phim\s+([^?.,!]+?)(?:\s+(chiếu|lúc nào|khi nào|mấy giờ))?/i);
             if (movieMatch && movieMatch[1]) {
-                movieName = movieMatch[1].trim();
+                movieName = cleanMovieNameFromQuestion(movieMatch[1].trim());
             }
 
             // Nếu không tìm thấy, thử tìm trong danh sách phim
@@ -340,6 +359,7 @@ export const chatWithBot = async (req, res) => {
             }
 
             if (movieName) {
+                const displayMovieName = movieName;
                 const foundMovie = findMovieByName(movieName);
                 if (foundMovie) {
                     const showtimes = getMovieShowtimes(foundMovie.title);
@@ -357,18 +377,14 @@ export const chatWithBot = async (req, res) => {
                             showtimes: showtimes.showtimes
                         };
                     } else {
-                        response = `Tìm thấy phim ${foundMovie.title} nhưng hiện chưa có lịch chiếu.`;
+                        response = `Phim ${foundMovie.title} hiện có trong hệ thống nhưng chưa có lịch chiếu được cập nhật. Bạn có muốn xem danh sách phim đang chiếu hoặc chọn rạp/ngày cụ thể để tôi kiểm tra lại không?`;
                         data = { movie: foundMovie };
                     }
                 } else {
-                    response = `Không tìm thấy phim "${movieName}" trong hệ thống.\n\n`;
-                    response += `Các phim đang chiếu:\n`;
-                    dbContext.movies.slice(0, 10).forEach(m => {
-                        response += `• ${m.title}\n`;
-                    });
+                    response = `Hiện tôi chưa có thông tin về phim "${displayMovieName}" trong hệ thống.`;
                 }
             } else {
-                response = `Bạn muốn xem lịch chiếu của phim nào?`;
+                response = `Bạn muốn xem lịch chiếu của phim nào? Nếu bạn có tên phim, ngày xem hoặc rạp mong muốn, hãy cho tôi biết để tôi kiểm tra chính xác hơn.`;
             }
         }
         // Case 5: Danh sách phim
@@ -383,7 +399,7 @@ export const chatWithBot = async (req, res) => {
                 response += `   Thể loại: ${movie.genre.join(', ') || 'N/A'}\n`;
                 response += `   Thời lượng: ${movie.duration} phút\n`;
                 if (movie.description) {
-                    response += `   Mô tả: ${movie.description.slice(0, 100)}...\n`;
+                    response += `   Mô tả: ${movie.description}\n`;
                 }
                 response += '\n';
             });
@@ -439,7 +455,7 @@ export const chatWithBot = async (req, res) => {
         // Case 9: Tìm phim theo tên (chỉ nhập tên phim)
         else {
             // Thử tìm xem có phải là tên phim không
-            const potentialMovieName = userMessage.trim();
+            const potentialMovieName = cleanMovieNameFromQuestion(userMessage.trim()) || userMessage.trim();
             if (potentialMovieName.length >= 2 && potentialMovieName.length <= 50) {
                 const foundMovie = findMovieByName(potentialMovieName);
                 if (foundMovie) {
@@ -450,7 +466,7 @@ export const chatWithBot = async (req, res) => {
                     }
                     response += `Thời lượng: ${foundMovie.duration} phút\n`;
                     if (foundMovie.description) {
-                        response += `Mô tả: ${foundMovie.description.slice(0, 200)}...\n\n`;
+                        response += `Mô tả: ${foundMovie.description}\n\n`;
                     }
                     if (showtimes && showtimes.showtimes && showtimes.showtimes.length > 0) {
                         response += `Lịch chiếu:\n`;
@@ -462,16 +478,16 @@ export const chatWithBot = async (req, res) => {
                             showtimes: showtimes.showtimes
                         };
                     } else {
-                        response += `\nHiện chưa có lịch chiếu cho phim này.`;
+                        response += `\nHiện chưa có lịch chiếu cho phim này. Bạn muốn xem lịch chiếu theo rạp hoặc theo ngày nào để tôi kiểm tra tiếp không?`;
                         data = { movie: foundMovie };
                     }
                 } else {
                     // Không tìm thấy phim
-                    response = `Không tìm thấy phim "${potentialMovieName}" trong hệ thống.`;
+                    response = `Hiện tôi chưa có thông tin về phim "${potentialMovieName}" trong hệ thống.`;
                 }
             } else {
                 // Câu hỏi không xác định
-                response = `Xin lỗi, tôi không hiểu câu hỏi của bạn. Vui lòng hỏi về phim, suất chiếu, combo hoặc rạp.`;
+                response = `Xin lỗi, tôi chưa hiểu rõ câu hỏi của bạn. Bạn có thể hỏi về phim, lịch chiếu, giá vé, combo hoặc rạp. Nếu có tên phim cụ thể, hãy cho tôi biết để tôi tra cứu nhanh hơn.`;
             }
         }
 
