@@ -50,6 +50,17 @@ class ApiService {
    */
   async handleResponse(response, callback) {
     if (response.status === 401) {
+      // Nếu đang ở trang login, không redirect mà trả lỗi về callback để hiển thị thông báo
+      const isOnLoginPage = window.location.pathname === '/login' || window.location.pathname === '/admin/login';
+      if (isOnLoginPage) {
+        try {
+          const errorData = await response.json();
+          if (callback) callback(errorData, false);
+        } catch (e) {
+          if (callback) callback({ message: "Tên đăng nhập hoặc mật khẩu không chính xác" }, false);
+        }
+        return;
+      }
       this.handleUnauthorized();
       if (callback) callback(null, false);
       return;
