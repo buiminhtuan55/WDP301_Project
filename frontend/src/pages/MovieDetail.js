@@ -685,6 +685,24 @@ export default function MovieDetail() {
                                             ? timeMatch[1]
                                             : showtime.start_time.vietnamFormatted.split(" ")[0]
 
+                                          // Extract end time
+                                          let endTime = ""
+                                          if (showtime.end_time) {
+                                            let endTimeString = ""
+                                            if (showtime.end_time.vietnamFormatted) {
+                                              endTimeString = showtime.end_time.vietnamFormatted
+                                            } else if (typeof showtime.end_time === "string") {
+                                              endTimeString = showtime.end_time
+                                            } else {
+                                              endTimeString = new Date(showtime.end_time).toLocaleTimeString(
+                                                "vi-VN",
+                                                { hour: "2-digit", minute: "2-digit" }
+                                              )
+                                            }
+                                            const endTimeMatch = endTimeString.match(/^(\d{2}:\d{2})/)
+                                            endTime = endTimeMatch ? endTimeMatch[1] : ""
+                                          }
+
                                           const seatsInfo = showtimeSeatsInfo[showtime._id] || {
                                             booked: 0,
                                             total: 0,
@@ -713,7 +731,7 @@ export default function MovieDetail() {
                                             >
                                               <VStack spacing={1}>
                                                 <Text fontSize="md" fontWeight="700">
-                                                  {time}
+                                                  {time} {endTime && `- ${endTime}`}
                                                 </Text>
                                                 {seatsInfo.total > 0 && (
                                                   <Text fontSize="xs" color="gray.200">
